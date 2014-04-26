@@ -109,7 +109,11 @@ void Application::OnContextInitialized()
 
   // Create the browser asynchronously and load the startup url
   LOG_DEBUG(logger()) << "create browser with startup url: '" << _startupUrl << "'";
-  CefBrowserHost::CreateBrowser(info, _client.get(), _startupUrl, browserSettings, NULL);
+
+  // FM: Create the browser syncronously instead and start in full screen mode
+  CefBrowserHost::CreateBrowserSync(info, _client.get(), _startupUrl, browserSettings, NULL);
+  _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle());
+
 }
 
 void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
