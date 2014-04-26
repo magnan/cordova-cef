@@ -8,3 +8,18 @@ TODO's for Cordova-CEF:
 - Off-screen rendering for transparent window and background
 - multi process implementation has problems
 - fullscreen
+
+
+
+
+
+FMagnan:
+
+- make the camera plugin work
+- full screen as a switch in config.xml
+- glitch at startup: a window frame appears before the full screen switch
+- sexyer launch of the app: specs TBD
+- migrate to cordova 3.X?
+- integration with cordova platform:
+	- Windows8 target for normal cordova operations
+	- Plugins infrastructure integration 
