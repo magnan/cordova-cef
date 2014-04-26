@@ -62,7 +62,7 @@ bool Client_Win::OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& e
         {
           toggleFullScreen(browser->GetHost()->GetWindowHandle());
 
-		  ; FM: Also show dev tools when exiting full screen for debugging purposes
+		  // FM: Also show dev tools when exiting full screen for debugging purposes
 		  showDevTools(browser);
           return true;
         }
