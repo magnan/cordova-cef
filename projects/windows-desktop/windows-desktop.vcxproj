@@ -97,7 +97,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Release;..\..\3rdparty\cef3\out\Release\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Release;..\..\3rdparty\cef3\out\Release\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\lib32-msvc-11.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcef.lib;libcef_dll_wrapper.lib;pugixmls.lib;Shlwapi.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
