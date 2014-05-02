@@ -22,6 +22,8 @@
 #include "client_win.h"
 #include "cefclient/util.h"
 
+#include "Capture.h"
+
 
 #include <Winuser.h>
 
@@ -58,12 +60,18 @@ bool Client_Win::OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& e
           browser->Reload();
           return true;
         }
+		case VK_F10:
+		{
+			CameraTest();
+			break;
+		}
         case  VK_F11:
         {
-          toggleFullScreen(browser->GetHost()->GetWindowHandle());
+			CameraTest();
+            toggleFullScreen(browser->GetHost()->GetWindowHandle());
 
 		  // FM: Also show dev tools when exiting full screen for debugging purposes
-		  showDevTools(browser);
+		  //showDevTools(browser);
           return true;
         }
         default:
