@@ -21,6 +21,8 @@
 
 #include "common/logging.h"
 
+#include "Camera.h"
+
 #include <Windows.h>
 #include "include/cef_base.h"
 
@@ -75,7 +77,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     appsettings.windowless_rendering_enabled = offscreenrendering;
 
     // Initialize CEF in the main process.
-    CefInitialize(main_args, appsettings, app.get(), sandbox_info);
+    // GC: CefInitialize(main_args, appsettings, app.get(), sandbox_info);
+	
+	CameraWindow();
+	return 0;
   
     // Run the CEF message loop. This will block until CefQuitMessageLoop() is called.
     CefRunMessageLoop();
