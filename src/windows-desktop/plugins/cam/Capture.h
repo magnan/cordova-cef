@@ -36,7 +36,6 @@ const UINT WM_APP_CAPTURE_EVENT = WM_APP + 1;
 
 HWND    CreatePreviewWindow(HINSTANCE hInstance, HWND hParent);
 HWND    CreateMainWindow(HINSTANCE hInstance);
-void    SetMenuItemText(HMENU hMenu, UINT uItem, _In_ PWSTR pszText);
 void    ShowError(HWND hwnd, PCWSTR szMessage, HRESULT hr);
 void    ShowError(HWND hwnd, UINT id, HRESULT hr);
 HRESULT CloneVideoMediaType(IMFMediaType *pSrcMediaType, REFGUID guidSubType, IMFMediaType **ppNewMediaType);

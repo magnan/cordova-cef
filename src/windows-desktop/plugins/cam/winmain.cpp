@@ -72,28 +72,13 @@ namespace MainWindow
         if (g_pEngine->IsRecording() != bRecording)
         {
             bRecording = g_pEngine->IsRecording();
-            if (bRecording)
-            {
-                SetMenuItemText(GetMenu(hwnd), ID_CAPTURE_RECORD, L"Stop Recording");
-            }
-            else
-            {
-                SetMenuItemText(GetMenu(hwnd), ID_CAPTURE_RECORD, L"Start Recording");
-            }
         }
 
         if (g_pEngine->IsPreviewing() != bPreviewing)
         {
             bPreviewing = g_pEngine->IsPreviewing();
-            if (bPreviewing)
-            {
-                SetMenuItemText(GetMenu(hwnd), ID_CAPTURE_PREVIEW, L"Stop Preview");
-            }
-            else
-            {
-                SetMenuItemText(GetMenu(hwnd), ID_CAPTURE_PREVIEW, L"Start Preview");
-            }
         }
+
         BOOL bEnableRecording = TRUE;
         BOOL bEnablePhoto = TRUE;
 
@@ -112,9 +97,6 @@ namespace MainWindow
         {
             bEnablePhoto = FALSE;
         }
-
-        EnableMenuItem(GetMenu(hwnd), ID_CAPTURE_RECORD, bEnableRecording ? MF_ENABLED : MF_GRAYED);
-        EnableMenuItem(GetMenu(hwnd), ID_CAPTURE_TAKEPHOTO, bEnablePhoto ? MF_ENABLED : MF_GRAYED);
     }
 
 

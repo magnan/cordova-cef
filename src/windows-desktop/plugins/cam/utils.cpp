@@ -146,18 +146,6 @@ void ShowError(HWND hwnd, UINT id, HRESULT hr)
 }
 
 
-
-void SetMenuItemText(HMENU hMenu, UINT uItem, _In_ PWSTR pszText)
-{
-    MENUITEMINFO mii = {};
-    mii.cbSize = sizeof(mii);
-    mii.fMask = MIIM_STRING;
-    mii.dwTypeData = pszText;
-
-    SetMenuItemInfo(hMenu, uItem, FALSE, &mii);
-}
-
-
 VOID DbgPrint(PCTSTR format, ...)
 {
     va_list args;
