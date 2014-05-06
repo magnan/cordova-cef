@@ -46,7 +46,6 @@ Application::~Application()
 
 void Application::OnContextInitialized()
 { 
-  
   std::string startup_document = _config->startDocument();
 
   // test if absolute url with http or https
