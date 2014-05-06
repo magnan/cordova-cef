@@ -44,7 +44,6 @@ Application::~Application()
 }
 
 
-
 void Application::OnContextInitialized()
 { 
   
@@ -64,9 +63,6 @@ void Application::OnContextInitialized()
     _startupUrl = "file://" + www_dir + "/" + startup_document; 
   }
 
-
-
-  
 
   CefWindowInfo info;
   bool transparent = true;
@@ -115,7 +111,7 @@ void Application::OnContextInitialized()
   // FM: Create the browser syncronously instead and start in full screen mode
   CefBrowserHost::CreateBrowserSync(info, _client.get(), _startupUrl, browserSettings, NULL);
   _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle());
-
+  ShowWindow(_mainWindow, SW_SHOW );
 }
 
 void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )

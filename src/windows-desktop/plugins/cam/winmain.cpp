@@ -589,6 +589,26 @@ HWND CreateMainWindow(HINSTANCE hInstance)
         NULL, NULL, hInstance, NULL);
 };
 
+void MakeWindowFullscreen(HWND hwnd)
+{
+    SetWindowLong(hwnd, GWL_STYLE, 
+                  GetWindowLong(hwnd, GWL_STYLE) & ~(WS_CAPTION | WS_THICKFRAME));
+    SetWindowLong(hwnd, GWL_EXSTYLE, 
+                  GetWindowLong(hwnd, GWL_EXSTYLE) & ~(WS_EX_DLGMODALFRAME | 
+                  WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST),
+                                     &monitor_info);
+    SetWindowPos(hwnd, NULL, 
+                 monitor_info.rcMonitor.left, 
+                 monitor_info.rcMonitor.top,
+                 monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
+                 monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
 DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
 {
 	// Initialize zones
@@ -608,6 +628,8 @@ DWORD WINAPI CreateWindowThreaded( LPVOID lpParam )
 	recordZone.isSelected = false;
 
 	HWND hwnd = CreateMainWindow(NULL);
+
+	MakeWindowFullscreen(hwnd);
 	
 	MainWindow::OnStartPreview(hwnd);
 

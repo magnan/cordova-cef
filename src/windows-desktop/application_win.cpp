@@ -89,8 +89,9 @@ Application_Win::Application_Win(std::shared_ptr<Helper::Paths> paths)
 
   SetWindowLongPtrW(_mainWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
  
-  ShowWindow(_mainWindow, SW_SHOW );
-  UpdateWindow(_mainWindow);
+  // Done in OnContextInitialized after toggleFullScreen to minimize flicker
+  // ShowWindow(_mainWindow, SW_SHOW );
+  // UpdateWindow(_mainWindow);
 }
 
 Application_Win::~Application_Win()

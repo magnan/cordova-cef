@@ -78,9 +78,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
     // Initialize CEF in the main process.
     CefInitialize(main_args, appsettings, app.get(), sandbox_info);
-	
-	// CameraWindow();
-	// return 0;
   
     // Run the CEF message loop. This will block until CefQuitMessageLoop() is called.
     CefRunMessageLoop();
