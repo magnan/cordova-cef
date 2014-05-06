@@ -58,7 +58,6 @@ namespace MainWindow
     wchar_t VideoFileName[MAX_PATH];
     wchar_t PhotoFileName[MAX_PATH];
 
-    void OnChooseDevice(HWND hwnd);
     BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
     void OnPaint(HWND hwnd);
     void OnSize(HWND hwnd, UINT state, int cx, int cy);
@@ -357,17 +356,23 @@ done:
 
 	void captureVideo(HWND hwnd)
 	{
-        videoZone.isSelected = true;
-        stillZone.isSelected = false;
-		InvalidateRect(hwnd, NULL, 0);
+		if (!g_pEngine->IsRecording())
+		{
+			videoZone.isSelected = true;
+			stillZone.isSelected = false;
+			InvalidateRect(hwnd, NULL, 0);
+		}
 	}
 
 
 	void captureStill(HWND hwnd)
 	{
-        videoZone.isSelected = false;
-        stillZone.isSelected = true;
-		InvalidateRect(hwnd, NULL, 0);
+		if (!g_pEngine->IsRecording())
+		{
+			videoZone.isSelected = false;
+			stillZone.isSelected = true;
+			InvalidateRect(hwnd, NULL, 0);
+		}
 	}
 
 
@@ -380,7 +385,7 @@ done:
 				OnStopRecord(hwnd);
 				recordZone.isSelected = false;
 				InvalidateRect(hwnd, NULL, 0);
-				CloseWindow(hwnd);
+				PostQuitMessage(0);
 			}
 			else
 			{
@@ -399,7 +404,7 @@ done:
 			recordZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
 			RedrawWindow(hwnd, NULL, NULL, 0);
-			CloseWindow(hwnd);
+			PostQuitMessage(0);
 		}
 	}
 
@@ -663,6 +668,6 @@ __declspec(dllexport) void __cdecl CameraCapture()
 		cameraInited = true;
 	}
 
-	CreateWindowThreaded(NULL);
-    // CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
+	// CreateWindowThreaded(NULL);
+    CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
 }
