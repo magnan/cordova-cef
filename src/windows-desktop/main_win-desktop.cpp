@@ -77,10 +77,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     appsettings.windowless_rendering_enabled = offscreenrendering;
 
     // Initialize CEF in the main process.
-    // GC: CefInitialize(main_args, appsettings, app.get(), sandbox_info);
+    CefInitialize(main_args, appsettings, app.get(), sandbox_info);
 	
-	CameraWindow();
-	return 0;
+	// CameraWindow();
+	// return 0;
   
     // Run the CEF message loop. This will block until CefQuitMessageLoop() is called.
     CefRunMessageLoop();

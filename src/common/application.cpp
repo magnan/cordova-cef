@@ -22,6 +22,8 @@
 #include "application.h"
 #include "client.h"
 
+#include "Camera.h"
+
 Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application),
     _client(client),
@@ -123,6 +125,11 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   CefRefPtr<CefV8Value> exec = CefV8Value::CreateFunction("exec", this);
   _exposedJSObject->SetValue("exec", exec, V8_PROPERTY_ATTRIBUTE_READONLY);
   global->SetValue("_cordovaNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+  
+  _exposedJSObject = CefV8Value::CreateObject(NULL);
+  CefRefPtr<CefV8Value> camera = CefV8Value::CreateFunction("camera", this);
+  _exposedJSObject->SetValue("camera", camera, V8_PROPERTY_ATTRIBUTE_READONLY);
+  global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
 }
 
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
@@ -139,6 +146,11 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
     std::string callbackId = arguments[2]->GetStringValue().ToString();
     std::string rawArgs = arguments[3]->GetStringValue().ToString();
     _pluginManager->exec(service, action, callbackId, rawArgs);
+    return true;
+  }
+  if(name == "camera" && arguments.size() == 0)
+  {
+    CameraCapture();
     return true;
   }
   return false;

@@ -30,8 +30,6 @@ HPOWERNOTIFY    g_hPowerNotifyMonitor = NULL;
 SYSTEM_POWER_CAPABILITIES   g_pwrCaps;
 bool            g_fSleepState = false;
 
-INT_PTR CALLBACK ChooseDeviceDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 bool cameraInited = false;
 bool cameraRecord = true;
 
@@ -46,351 +44,18 @@ struct Zone
 
 Zone videoZone;
 Zone stillZone;
-
-DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
-{
-	// Initialize zones
-	videoZone.left = 10;
-	videoZone.default = L"C:\\images\\ath-tool-video.png";
-	videoZone.selected = L"C:\\images\\ath-tool-video-selected.png";
-	videoZone.isSelected = false;
-
-	stillZone.left = 50;
-	stillZone.default = L"C:\\images\\ath-tool-still.png";
-	stillZone.selected = L"C:\\images\\ath-tool-still-selected.png";
-	stillZone.isSelected = false;
-
-	HWND hwnd = CreateMainWindow(NULL);
-
-    ShowWindow(hwnd, SW_RESTORE);
-
-    // Run the message loop.
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-	return 0;
-}
-
-__declspec(dllexport) void __cdecl CameraTest()
-{
-	if (cameraInited)
-		return;
-
-	bool bCoInit = false, bMFStartup = false;
-
-	GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-
-    // Initialize the common controls
-    const INITCOMMONCONTROLSEX icex = { sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES };
-    InitCommonControlsEx(&icex); 
-
-    // Note: The shell common File dialog requires apartment threading.
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-    bCoInit = true;
-
-	// start up GDI+ -- only need to do this once per process at startup
-    Status ret = GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-    if (ret != Ok)
-    {
-        goto done;
-    }
-
-	// shut down - only once per process
-    // GdiplusShutdown(gdiplusToken);
-
-    hr = MFStartup(MF_VERSION);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-
-    bMFStartup = true;
-
-    CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
-
-done:
-    if (FAILED(hr))
-    {
-        ShowError(NULL, L"Failed to start application", hr);
-    }
-    if (bMFStartup)
-    {
-        MFShutdown();
-    }
-    if (bCoInit)
-    {
-        CoUninitialize();
-    }
-    
-	cameraInited = true;
-}
-
-
-__declspec(dllexport) void __cdecl CameraWindow()
-{
-	if (cameraInited)
-		return;
-
-	bool bCoInit = false, bMFStartup = false;
-	
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-
-    // Initialize the common controls
-    const INITCOMMONCONTROLSEX icex = { sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES };
-    InitCommonControlsEx(&icex); 
-
-    // Note: The shell common File dialog requires apartment threading.
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-    bCoInit = true;
-
-	// start up GDI+ -- only need to do this once per process at startup
-    Status ret = GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-    if (ret != Ok)
-    {
-        goto done;
-    }
-
-	// shut down - only once per process
-    // GdiplusShutdown(gdiplusToken);
-
-    hr = MFStartup(MF_VERSION);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-
-    bMFStartup = true;
-
-    CreateWindowThreaded(NULL);
-
-done:
-    if (FAILED(hr))
-    {
-        ShowError(NULL, L"Failed to start application", hr);
-    }
-    if (bMFStartup)
-    {
-        MFShutdown();
-    }
-    if (bCoInit)
-    {
-        CoUninitialize();
-    }
-    
-	cameraInited = true;
-}
-
-INT WINAPI wWinMainCamera(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPWSTR /*lpCmdLine*/, _In_ INT nCmdShow)
-{
-    bool bCoInit = false, bMFStartup = false;
-
-    // Initialize the common controls
-    const INITCOMMONCONTROLSEX icex = { sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES };
-    InitCommonControlsEx(&icex); 
-
-    // Note: The shell common File dialog requires apartment threading.
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-    bCoInit = true;
-
-    hr = MFStartup(MF_VERSION);
-    if (FAILED(hr))
-    {
-        goto done;
-    }
-
-    bMFStartup = true;
-
-    HWND hwnd = CreateMainWindow(hInstance);
-    if (hwnd == 0)
-    {
-        ShowError(NULL, L"CreateMainWindow failed.", hr);
-        goto done;
-    }
-
-    ShowWindow(hwnd, nCmdShow);
-
-    // Run the message loop.
-
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-done:
-    if (FAILED(hr))
-    {
-        ShowError(NULL, L"Failed to start application", hr);
-    }
-    if (bMFStartup)
-    {
-        MFShutdown();
-    }
-    if (bCoInit)
-    {
-        CoUninitialize();
-    }
-    return 0;
-}
-
-
-// Dialog functions
-
-HRESULT OnInitDialog(HWND hwnd, ChooseDeviceParam *pParam);
-HRESULT OnOK(HWND hwnd, ChooseDeviceParam *pParam);
-
-// Window procedure for the "Choose Device" dialog.
-
-INT_PTR CALLBACK ChooseDeviceDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    static ChooseDeviceParam *pParam = NULL;
-
-    switch (msg)
-    {
-    case WM_INITDIALOG:
-        pParam = (ChooseDeviceParam*)lParam;
-        OnInitDialog(hwnd, pParam);
-        return TRUE;
-
-    case WM_COMMAND:
-        switch(LOWORD(wParam))
-        {
-        case IDOK:
-            OnOK(hwnd, pParam);
-            EndDialog(hwnd, LOWORD(wParam));
-            return TRUE;
-
-        case IDCANCEL:
-            EndDialog(hwnd, LOWORD(wParam));
-            return TRUE;
-        }
-        break;
-    }
-
-    return FALSE;
-}
-
-// Handler for WM_INITDIALOG
-
-HRESULT OnInitDialog(HWND hwnd, ChooseDeviceParam *pParam)
-{
-    HRESULT hr = S_OK;
-
-    HWND hList = GetDlgItem(hwnd, IDC_DEVICE_LIST);
-
-    // Display a list of the devices.
-
-    for (DWORD i = 0; i < pParam->count; i++)
-    {
-        WCHAR *szFriendlyName = NULL;
-        UINT32 cchName;
-
-        hr = pParam->ppDevices[i]->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-            &szFriendlyName, &cchName);
-        if (FAILED(hr))
-        {
-            break;
-        }
-
-        int index = ListBox_AddString(hList, szFriendlyName);
-
-        ListBox_SetItemData(hList, index, i);
-
-        CoTaskMemFree(szFriendlyName);
-    }
-
-    // Assume no selection for now.
-    pParam->selection = (UINT32)-1;
-
-    if (pParam->count == 0)
-    {
-        // If there are no devices, disable the "OK" button.
-        EnableWindow(GetDlgItem(hwnd, IDOK), FALSE);
-    }
-    else
-    {
-        // Select the first device in the list.
-        ListBox_SetCurSel(hList, 0);
-    }
-
-    return hr;
-}
-
-// Handler for the OK button
-
-HRESULT OnOK(HWND hwnd, ChooseDeviceParam *pParam)
-{
-    HWND hList = GetDlgItem(hwnd, IDC_DEVICE_LIST);
-
-    // Get the current selection and return it to the application.
-    int sel = ListBox_GetCurSel(hList);
-
-    if (sel != LB_ERR)
-    {
-        pParam->selection = (UINT32)ListBox_GetItemData(hList, sel);
-    }
-
-    return S_OK;
-}
-
-
-HWND CreateStatusBar(HWND hParent, UINT nID)
-{
-    return CreateStatusWindow(WS_CHILD | WS_VISIBLE, L"", hParent, nID);
-}
-
-BOOL StatusSetText(HWND hwnd, int iPart, const TCHAR* szText, BOOL bNoBorders = FALSE, BOOL bPopOut = FALSE)
-{
-    UINT flags = 0;
-    if (bNoBorders) 
-    { 
-        flags |= SBT_NOBORDERS;
-    }
-    if (bPopOut)
-    {
-        flags |= SBT_POPOUT;
-    }
-
-    return (BOOL)SendMessage(hwnd, SB_SETTEXT, (WPARAM)(iPart | flags), (LPARAM)szText);
-}
-
-
+Zone recordZone;
 
 // Implements the window procedure for the main application window.
 
 namespace MainWindow
 {
     HWND hPreview = NULL;
-    HWND hStatus = NULL;
     bool bRecording = false;
     bool bPreviewing = false;
     IMFActivate* pSelectedDevice = NULL;
      
     wchar_t PhotoFileName[MAX_PATH];
-
-    inline void _SetStatusText(const WCHAR *szStatus)
-    {
-        // StatusSetText(hStatus, 0, szStatus);
-    }
 
     void OnChooseDevice(HWND hwnd);
     BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
@@ -400,7 +65,6 @@ namespace MainWindow
     void OnChooseDevice(HWND hwnd);
     void OnStartRecord(HWND hwnd);
     void OnStopRecord(HWND hwnd);
-    void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
 
     void UpdateUI(HWND hwnd)
     {
@@ -434,15 +98,12 @@ namespace MainWindow
 
         if (bRecording)
         {
-            _SetStatusText(L"Recording");
         }
         else if (g_pEngine->IsPreviewing())
         {
-            _SetStatusText(L"Previewing");
         }
         else
         {
-            _SetStatusText(L"Please select a device or start preview (using the default device).");
             bEnableRecording = FALSE;
         }
 
@@ -467,12 +128,6 @@ namespace MainWindow
         {
             goto done;
         }
-
-        // hStatus = CreateStatusBar(hwnd, IDC_STATUS_BAR);
-        // if (hStatus == NULL)
-        // {
-        //     goto done;
-        // }
 
         if (FAILED(CaptureManager::CreateInstance(hwnd, &g_pEngine)))
         {
@@ -525,6 +180,7 @@ namespace MainWindow
 		{
 			PaintZone(&grpx, &videoZone);
 			PaintZone(&grpx, &stillZone);
+			PaintZone(&grpx, &recordZone);
 		}
 		else
 		{
@@ -535,7 +191,7 @@ namespace MainWindow
 
 	void sizeZone(Zone* zone, RECT* windowrect)
 	{
-		zone->rect.X = zone->left;
+		zone->rect.X = (windowrect->right - windowrect->left) / 2 + zone->left;
 		zone->rect.Y = windowrect->bottom - 40;
 		zone->rect.Width = 30;
 		zone->rect.Height = 30;
@@ -546,23 +202,17 @@ namespace MainWindow
     {        
         if (state == SIZE_RESTORED || state == SIZE_MAXIMIZED)
         {
-            // Resize the status bar.
-            // SendMessageW(hStatus, WM_SIZE, 0, 0);
-
-            // Resize the preview window.
-            // RECT statusRect;
-            // SendMessageW(hStatus, SB_GETRECT, 0, (LPARAM)&statusRect);
-            // cy -= (statusRect.bottom - statusRect.top);
-			// cy -= 50;
-			
 			RECT windowrect;
 			GetClientRect(hwnd, &windowrect);
 			
 			sizeZone(&videoZone, &windowrect);
 			sizeZone(&stillZone, &windowrect);
+			sizeZone(&recordZone, &windowrect);
             
 			cy -= 50;
             MoveWindow(hPreview, 0, 0, cx, cy, TRUE);
+
+			InvalidateRect(hwnd, NULL, 0);
         }        
     }
 
@@ -576,67 +226,6 @@ namespace MainWindow
             g_hPowerNotify = NULL;
         }
         PostQuitMessage(0);
-    }
-
-    void OnChooseDevice(HWND hwnd)
-    {
-        ChooseDeviceParam param;
-
-        IMFAttributes *pAttributes = NULL;
-
-        HRESULT hr = MFCreateAttributes(&pAttributes, 1);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        // Ask for source type = video capture devices
-        hr = pAttributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
-                MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        // Enumerate devices.
-        hr = MFEnumDeviceSources(pAttributes, &param.ppDevices, &param.count);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        // Ask the user to select one.
-        INT_PTR result = DialogBoxParam(GetModuleHandle(NULL),
-            MAKEINTRESOURCE(IDD_CHOOSE_DEVICE), hwnd,
-            ChooseDeviceDlgProc, (LPARAM)&param);
-
-        if ((result == IDOK) && (param.selection != (UINT32)-1))
-        {
-            UINT iDevice = param.selection;
-
-            if (iDevice >= param.count)
-            {
-                hr = E_UNEXPECTED;
-                goto done;
-            }
-
-            hr = g_pEngine->InitializeCaptureManager(hPreview, param.ppDevices[iDevice]);
-            if (FAILED(hr))
-            {
-                goto done;
-            }
-            SafeRelease(&pSelectedDevice);
-            pSelectedDevice = param.ppDevices[iDevice];
-            pSelectedDevice->AddRef();
-        }
-
-    done:
-        SafeRelease(&pAttributes);
-        if (FAILED(hr))
-        {
-            ShowError(hwnd, IDS_ERR_SET_DEVICE, hr);
-        }
-        UpdateUI(hwnd);
     }
 
 
@@ -794,8 +383,6 @@ done:
             goto done;
         }
 
-        _SetStatusText(path);
-
 done:
         SafeRelease(&psi);
         CoTaskMemFree(pszFolderPath);
@@ -806,43 +393,6 @@ done:
         }
         UpdateUI(hwnd);
     }
-    
-    void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
-    {
-        switch (id)
-        {
-        case ID_CAPTURE_CHOOSEDEVICE:
-            OnChooseDevice(hwnd);
-            break;
-
-        case ID_CAPTURE_RECORD:
-            if (g_pEngine->IsRecording())
-            {
-                OnStopRecord(hwnd);
-            }
-            else
-            {
-                OnStartRecord(hwnd);
-            }
-            break;
-
-        case ID_CAPTURE_TAKEPHOTO:
-            OnTakePhoto(hwnd);
-            break;
-
-        case ID_CAPTURE_PREVIEW:
-            if (g_pEngine->IsPreviewing())
-            {
-                OnStopPreview(hwnd);
-            }
-            else
-            {
-                OnStartPreview(hwnd);
-            }
-            break;
-        }
-    }
-
 
 	BOOL inZone(Zone* zone, int x, int y)
 	{
@@ -852,20 +402,48 @@ done:
 
 	void captureVideo(HWND hwnd)
 	{
-        if (g_pEngine->IsRecording())
-        {
-            OnStopRecord(hwnd);
-        }
-        else
-        {
-            OnStartRecord(hwnd);
-        }
+        videoZone.isSelected = true;
+        stillZone.isSelected = false;
+		InvalidateRect(hwnd, NULL, 0);
 	}
 
 
 	void captureStill(HWND hwnd)
 	{
-		OnTakePhoto(hwnd);
+        videoZone.isSelected = false;
+        stillZone.isSelected = true;
+		InvalidateRect(hwnd, NULL, 0);
+	}
+
+
+	void recordAction(HWND hwnd)
+	{
+		if (videoZone.isSelected)
+		{
+			if (g_pEngine->IsRecording())
+			{
+				OnStopRecord(hwnd);
+				recordZone.isSelected = false;
+				InvalidateRect(hwnd, NULL, 0);
+			}
+			else
+			{
+				recordZone.isSelected = true;
+				InvalidateRect(hwnd, NULL, 0);
+				OnStartRecord(hwnd);
+			}
+		}
+		else
+		{
+			recordZone.isSelected = true;
+			InvalidateRect(hwnd, NULL, 0);
+			RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
+			Sleep(500);
+			OnTakePhoto(hwnd);
+			recordZone.isSelected = false;
+			InvalidateRect(hwnd, NULL, 0);
+			RedrawWindow(hwnd, NULL, NULL, 0);
+		}
 	}
 
 
@@ -877,10 +455,18 @@ done:
         HANDLE_MSG(hwnd, WM_PAINT,   OnPaint);
         HANDLE_MSG(hwnd, WM_SIZE,    OnSize);
         HANDLE_MSG(hwnd, WM_DESTROY, OnDestroy);
-        HANDLE_MSG(hwnd, WM_COMMAND, OnCommand);
 
         case WM_ERASEBKGND:
             return 1;
+
+		case WM_MOUSEMOVE:
+			{
+				int x = GET_X_LPARAM(lParam);
+				int y = GET_Y_LPARAM(lParam);
+
+				SetCursor(LoadCursor(NULL, IDC_ARROW));
+			}
+			return 0;
 
 		case WM_LBUTTONDOWN:
 			{
@@ -893,8 +479,12 @@ done:
 						captureVideo(hwnd);
 					else if (inZone(&stillZone, x, y))
 						captureStill(hwnd);
+					else if (inZone(&recordZone, x, y))
+						recordAction(hwnd);
 				}
-
+				else
+				{
+				}
 			}
 			return 0;
 
@@ -998,3 +588,97 @@ HWND CreateMainWindow(HINSTANCE hInstance)
         WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         NULL, NULL, hInstance, NULL);
 };
+
+DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
+{
+	// Initialize zones
+	videoZone.left = -100;
+	videoZone.default = L"C:\\images\\ath-tool-video.png";
+	videoZone.selected = L"C:\\images\\ath-tool-video_selected.png";
+	videoZone.isSelected = true;
+
+	stillZone.left = -60;
+	stillZone.default = L"C:\\images\\ath-tool-still.png";
+	stillZone.selected = L"C:\\images\\ath-tool-still_selected.png";
+	stillZone.isSelected = false;
+	
+	recordZone.left = 100;
+	recordZone.default = L"C:\\images\\ath-tool-record.png";
+	recordZone.selected = L"C:\\images\\ath-tool-record_selected.png";
+	recordZone.isSelected = false;
+
+	HWND hwnd = CreateMainWindow(NULL);
+	
+	MainWindow::OnStartPreview(hwnd);
+
+    ShowWindow(hwnd, SW_RESTORE);
+
+    // Run the message loop.
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+	return 0;
+}
+
+__declspec(dllexport) void __cdecl CameraCapture()
+{
+	// if (cameraInited)
+	//	return;
+
+	bool bCoInit = false, bMFStartup = false;
+
+	GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+
+    // Initialize the common controls
+    const INITCOMMONCONTROLSEX icex = { sizeof(INITCOMMONCONTROLSEX), ICC_WIN95_CLASSES };
+    InitCommonControlsEx(&icex); 
+
+    // Note: The shell common File dialog requires apartment threading.
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+    bCoInit = true;
+
+	// start up GDI+ -- only need to do this once per process at startup
+    Status ret = GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    if (ret != Ok)
+    {
+        goto done;
+    }
+
+	// shut down - only once per process
+    // GdiplusShutdown(gdiplusToken);
+
+    hr = MFStartup(MF_VERSION);
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+
+    bMFStartup = true;
+
+    CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
+
+done:
+    if (FAILED(hr))
+    {
+        ShowError(NULL, L"Failed to start application", hr);
+    }
+    if (bMFStartup)
+    {
+        MFShutdown();
+    }
+    if (bCoInit)
+    {
+        CoUninitialize();
+    }
+    
+	cameraInited = true;
+}
