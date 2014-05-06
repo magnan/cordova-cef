@@ -55,6 +55,7 @@ namespace MainWindow
     bool bPreviewing = false;
     IMFActivate* pSelectedDevice = NULL;
      
+    wchar_t VideoFileName[MAX_PATH];
     wchar_t PhotoFileName[MAX_PATH];
 
     void OnChooseDevice(HWND hwnd);
@@ -231,79 +232,51 @@ namespace MainWindow
 
     void OnStartRecord(HWND hwnd)
     {
-        IFileSaveDialog *pFileSave = NULL;
-        IShellItem *pItem = NULL;
-        PWSTR pszFileName = NULL;
+		
+        wchar_t filename[MAX_PATH];
 
-        HRESULT hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileSave));
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-        hr = pFileSave->SetTitle(L"Select File Name");
-        if (FAILED(hr))
-        {
-            goto done;
-        }
+        // Get the path to the Documents folder.
+        IShellItem *psi = NULL;
+        PWSTR pszFolderPath = NULL;
 
-        hr = pFileSave->SetFileName(L"MyVideo.mp4");
+        HRESULT hr = SHCreateItemInKnownFolder(FOLDERID_Documents, 0, NULL, IID_PPV_ARGS(&psi));
         if (FAILED(hr))
         {
             goto done;
         }
 
-        hr = pFileSave->SetDefaultExtension(L"mp4");
+        hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszFolderPath);
         if (FAILED(hr))
         {
             goto done;
         }
 
-        const COMDLG_FILTERSPEC rgSpec[] =
-        { 
-            { L"MP4 (H.264/AAC)", L"*.mp4" },
-            { L"Windows Media Video", L"*.wmv" },
-            { L"All Files", L"*.*" },
-        };
-        hr = pFileSave->SetFileTypes(ARRAYSIZE(rgSpec), rgSpec);
+        // Construct a file name based on the current time.
+
+        SYSTEMTIME time;
+        GetLocalTime(&time);
+
+        hr = StringCchPrintf(filename, MAX_PATH, L"MyVideo%04u_%02u%02u_%02u%02u%02u.mp4",
+            time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
             goto done;
         }
 
-        hr = pFileSave->Show(hwnd);
-        if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
+        LPTSTR path = PathCombine(VideoFileName, pszFolderPath, filename);
+        if (path == NULL)
         {
-            hr = S_OK;      // The user canceled the dialog.
-            goto done;
-        }
-        if (FAILED(hr))
-        {
+            hr = E_FAIL;
             goto done;
         }
 
-        hr = pFileSave->GetResult(&pItem);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFileName);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        hr = g_pEngine->StartRecord(pszFileName);
+        hr = g_pEngine->StartRecord(VideoFileName);
         if (FAILED(hr))
         {
             goto done;
         }
 
 done:
-        CoTaskMemFree(pszFileName);
-        SafeRelease(&pItem);
-        SafeRelease(&pFileSave);
-
         if (FAILED(hr))
         {
             ShowError(hwnd, IDS_ERR_RECORD, hr);
@@ -425,6 +398,7 @@ done:
 				OnStopRecord(hwnd);
 				recordZone.isSelected = false;
 				InvalidateRect(hwnd, NULL, 0);
+				CloseWindow(hwnd);
 			}
 			else
 			{
@@ -443,6 +417,7 @@ done:
 			recordZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
 			RedrawWindow(hwnd, NULL, NULL, 0);
+			CloseWindow(hwnd);
 		}
 	}
 
@@ -646,11 +621,8 @@ DWORD WINAPI CreateWindowThreaded( LPVOID lpParam )
 	return 0;
 }
 
-__declspec(dllexport) void __cdecl CameraCapture()
+void CameraInit()
 {
-	// if (cameraInited)
-	//	return;
-
 	bool bCoInit = false, bMFStartup = false;
 
 	GdiplusStartupInput gdiplusStartupInput;
@@ -686,8 +658,6 @@ __declspec(dllexport) void __cdecl CameraCapture()
 
     bMFStartup = true;
 
-    CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
-
 done:
     if (FAILED(hr))
     {
@@ -701,6 +671,16 @@ done:
     {
         CoUninitialize();
     }
-    
-	cameraInited = true;
+}
+
+__declspec(dllexport) void __cdecl CameraCapture()
+{
+	if (! cameraInited)
+	{
+		CameraInit();
+		cameraInited = true;
+	}
+
+	CreateWindowThreaded(NULL);
+    // CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
 }
