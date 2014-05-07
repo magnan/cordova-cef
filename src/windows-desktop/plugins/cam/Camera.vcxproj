@@ -44,6 +44,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\..\..\..\sdpublic\sdk\inc;..\..\..\..\sdpublic\sdk\inc\minwin;..\..\..\..\sdpublic\sdk\inc\mincore;..\..\..\..\sdpublic\sdk\inc\crt;$(IncludePath)</IncludePath>
     <LibraryPath>D:\nt\sdpublic\sdk\lib\i386;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\dist\Sentio\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

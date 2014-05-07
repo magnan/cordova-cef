@@ -57,7 +57,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;JSON_IS_AMALGAMATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\src;..\..\src\common;..\..\src\windows-desktop;..\..\3rdparty\cef3;..\..\3rdparty\boost;..\..\3rdparty\pugixml\src;..\..\3rdparty\json-cpp-amalgamation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src;..\..\src\common;..\..\src\windows-desktop;..\..\src\windows-desktop\plugins\cam;..\..\3rdparty\cef3;..\..\3rdparty\boost;..\..\3rdparty\pugixml\src;..\..\3rdparty\json-cpp-amalgamation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS -Zm200 %(AdditionalOptions)</AdditionalOptions>
@@ -67,8 +67,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Debug;..\..\3rdparty\cef3\out\Debug\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcef.lib;libcef_dll_wrapper.lib;pugixmlsd.lib;Shlwapi.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Debug;..\..\3rdparty\cef3\out\Debug\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\lib32-msvc-11.0;..\..\dist\Sentio\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcef.lib;libcef_dll_wrapper.lib;pugixmlsd.lib;Shlwapi.lib;opengl32.lib;Camera.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
