@@ -374,9 +374,21 @@ done:
 
 	void captureClose(HWND hwnd)
 	{
-		cameraCode = 0;
-		cameraFilename = L"";
-		PostQuitMessage(0);
+		if (g_pEngine->IsRecording())
+		{
+			OnStopRecord(hwnd);
+			recordZone.isSelected = false;
+			InvalidateRect(hwnd, NULL, 0);
+			cameraCode = 0;
+			cameraFilename = VideoFileName;
+			PostQuitMessage(0);
+		}
+		else
+		{
+			cameraCode = 0;
+			cameraFilename = L"";
+			PostQuitMessage(0);
+		}
 	}
 
 

@@ -409,7 +409,6 @@ HRESULT CaptureManager::StartPreview()
         }
     }
 
-
     hr = m_pEngine->StartPreview();
     if (!m_fPowerRequestSet && m_hpwrRequest != INVALID_HANDLE_VALUE)
     {
