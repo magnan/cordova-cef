@@ -41,10 +41,6 @@ namespace PreviewWnd
             FillRect(hdc, &ps.rcPaint, hBackgroundBrush);
         }
 
-		HBRUSH hBrush;
-		hBrush = CreateSolidBrush(RGB(0,0,200));
-        FillRect(hdc, &ps.rcPaint, hBrush);
-
         EndPaint(hwnd, &ps);
     }
 
@@ -67,6 +63,12 @@ namespace PreviewWnd
 
         case WM_ERASEBKGND:
             return 1;
+
+		case WM_MOUSEMOVE:
+			{
+				SetCursor(LoadCursor(NULL, IDC_ARROW));
+			}
+			return 0;
         }
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }

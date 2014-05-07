@@ -132,6 +132,19 @@ void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<Ce
   
 }
 
+CefRefPtr<CefV8Value> callback_func;
+CefRefPtr<CefV8Context> callback_context;
+
+void CameraDone(int code, wchar_t* filename)
+{
+	CefV8ValueList args;
+	CefRefPtr<CefV8Value> num = CefV8Value::CreateInt(code);
+	CefRefPtr<CefV8Value> str = CefV8Value::CreateString(filename);
+	args.push_back(num);
+	args.push_back(str);
+	callback_func->ExecuteFunctionWithContext(callback_context, NULL, args);
+}
+
 bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception )
 {
   if(name == "exec" && arguments.size() == 4)
@@ -143,10 +156,12 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
     _pluginManager->exec(service, action, callbackId, rawArgs);
     return true;
   }
-  if(name == "camera" && arguments.size() == 0)
+  if(name == "camera" && arguments.size() == 1 && arguments[0]->IsFunction())
   {
-    CameraCapture();
-    return true;
+	  callback_func = arguments[0];
+      callback_context = CefV8Context::GetCurrentContext();
+	  CameraCapture(&CameraDone);
+	  return true;
   }
   return false;
 }

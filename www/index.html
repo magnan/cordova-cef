@@ -24,6 +24,16 @@
         <title>Cordova-CEF test</title>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
+        <script language="JavaScript">
+        function myCallback(code, filename) {
+          if (code == 0)
+          	alert("Failed");
+          if (code == 1)
+          	alert("Video: " + filename);
+          else if (code == 2)
+          	alert("Photo: " + filename);
+        }
+        </script>
 		<style>
 			body {
 				background-color: rgba(255, 0, 0, 0.5);
@@ -32,7 +42,7 @@
     </head>
     <body>
         <h1>Hey, it's Cordova!</h1>
-		<button onclick="_cameraNative.camera()">Camera Capture</button>
+		<button onclick="_cameraNative.camera(myCallback)">Camera Capture</button>
         <ol>
             <li>Check your console log for any white-list rejection errors.</li>
             <li>Add your allowed <strong>hosts</strong> in config.xml as access tags and set the origin attribute. (wildcards OK, don't enter the URL scheme)</li>

@@ -8,6 +8,8 @@
 #include "Capture.h"
 #include "resource.h"
 
+#include "Camera.h"
+
 #include <shlobj.h>
 #include <Shlwapi.h>
 #include <powrprof.h>
@@ -33,15 +35,20 @@ bool            g_fSleepState = false;
 bool cameraInited = false;
 bool cameraRecord = true;
 
+int cameraCode;
+wchar_t* cameraFilename;
+
 struct Zone
 {
 	int left;
+	int top;
 	Rect rect;
 	WCHAR* default;
 	WCHAR* selected;
 	bool isSelected;
 };
 
+Zone closeZone;
 Zone videoZone;
 Zone stillZone;
 Zone recordZone;
@@ -149,17 +156,27 @@ namespace MainWindow
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
-
-        // FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-
+		
 		HBRUSH hBrush;
-		hBrush = CreateSolidBrush(RGB(200,0,0));
+		hBrush = CreateSolidBrush(RGB(0,0,0));
         FillRect(hdc, &ps.rcPaint, hBrush);
 		
 	    Graphics grpx(hdc);
 
+		// Background
+		RECT windowrect;
+		GetClientRect(hwnd, &windowrect);
+		Rect rect;
+		rect.X = windowrect.left;
+		rect.Y = windowrect.bottom - 252;
+		rect.Width = windowrect.right - windowrect.left;
+		rect.Height = 252;
+	    Image* image = new Image(L"C:\\images\\ath-tool-bg.png");
+	    grpx.DrawImage(image,rect);
+
 		if (cameraRecord)
 		{
+			PaintZone(&grpx, &closeZone);
 			PaintZone(&grpx, &videoZone);
 			PaintZone(&grpx, &stillZone);
 			PaintZone(&grpx, &recordZone);
@@ -174,7 +191,7 @@ namespace MainWindow
 	void sizeZone(Zone* zone, RECT* windowrect)
 	{
 		zone->rect.X = (windowrect->right - windowrect->left) / 2 + zone->left;
-		zone->rect.Y = windowrect->bottom - 40;
+		zone->rect.Y = windowrect->bottom - 40 + zone->top;
 		zone->rect.Width = 30;
 		zone->rect.Height = 30;
 	
@@ -187,6 +204,7 @@ namespace MainWindow
 			RECT windowrect;
 			GetClientRect(hwnd, &windowrect);
 			
+			sizeZone(&closeZone, &windowrect);
 			sizeZone(&videoZone, &windowrect);
 			sizeZone(&stillZone, &windowrect);
 			sizeZone(&recordZone, &windowrect);
@@ -354,6 +372,14 @@ done:
 	}
 
 
+	void captureClose(HWND hwnd)
+	{
+		cameraCode = 0;
+		cameraFilename = L"";
+		PostQuitMessage(0);
+	}
+
+
 	void captureVideo(HWND hwnd)
 	{
 		if (!g_pEngine->IsRecording())
@@ -385,6 +411,8 @@ done:
 				OnStopRecord(hwnd);
 				recordZone.isSelected = false;
 				InvalidateRect(hwnd, NULL, 0);
+				cameraCode = 1;
+				cameraFilename = VideoFileName;
 				PostQuitMessage(0);
 			}
 			else
@@ -399,11 +427,12 @@ done:
 			recordZone.isSelected = true;
 			InvalidateRect(hwnd, NULL, 0);
 			RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
-			Sleep(500);
 			OnTakePhoto(hwnd);
 			recordZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
 			RedrawWindow(hwnd, NULL, NULL, 0);
+			cameraCode = 2;
+			cameraFilename = PhotoFileName;
 			PostQuitMessage(0);
 		}
 	}
@@ -423,9 +452,6 @@ done:
 
 		case WM_MOUSEMOVE:
 			{
-				int x = GET_X_LPARAM(lParam);
-				int y = GET_Y_LPARAM(lParam);
-
 				SetCursor(LoadCursor(NULL, IDC_ARROW));
 			}
 			return 0;
@@ -437,7 +463,9 @@ done:
 
 				if (cameraRecord)
 				{
-					if (inZone(&videoZone, x, y))
+					if (inZone(&closeZone, x, y))
+						captureClose(hwnd);
+					else if (inZone(&videoZone, x, y))
 						captureVideo(hwnd);
 					else if (inZone(&stillZone, x, y))
 						captureStill(hwnd);
@@ -571,24 +599,37 @@ void MakeWindowFullscreen(HWND hwnd)
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 }
 
-DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
+void SetupZones(bool firstTime)
 {
-	// Initialize zones
+	closeZone.left = -270;
+	closeZone.top = -4;
+	closeZone.default = L"C:\\images\\ath-tool-reject.png";
+	closeZone.selected = L"C:\\images\\ath-tool-reject_selected.png";
+	closeZone.isSelected = false;
+
 	videoZone.left = -100;
+	videoZone.top = 0;
 	videoZone.default = L"C:\\images\\ath-tool-video.png";
 	videoZone.selected = L"C:\\images\\ath-tool-video_selected.png";
-	videoZone.isSelected = true;
+	if (firstTime)
+		videoZone.isSelected = true;
 
 	stillZone.left = -60;
+	stillZone.top = 0;
 	stillZone.default = L"C:\\images\\ath-tool-still.png";
 	stillZone.selected = L"C:\\images\\ath-tool-still_selected.png";
-	stillZone.isSelected = false;
+	if (firstTime)
+		stillZone.isSelected = false;
 	
 	recordZone.left = 100;
+	recordZone.top = 0;
 	recordZone.default = L"C:\\images\\ath-tool-record.png";
 	recordZone.selected = L"C:\\images\\ath-tool-record_selected.png";
 	recordZone.isSelected = false;
+}
 
+DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
+{
 	HWND hwnd = CreateMainWindow(NULL);
 
 	MakeWindowFullscreen(hwnd);
@@ -660,14 +701,25 @@ done:
     }
 }
 
-__declspec(dllexport) void __cdecl CameraCapture()
+__declspec(dllexport) void __cdecl CameraCapture(CameraDoneCallback callback)
 {
+	bool firstTime = ! cameraInited;
+
 	if (! cameraInited)
 	{
 		CameraInit();
 		cameraInited = true;
 	}
 
-	// CreateWindowThreaded(NULL);
-    CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
+	SetupZones(firstTime);
+	
+	cameraCode = 0;
+	cameraFilename = L"";
+
+    HANDLE thread = CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
+	WaitForSingleObject(thread,INFINITE);
+
+    g_pEngine->DestroyCaptureEngine();
+	
+	callback(cameraCode, cameraFilename);
 }
