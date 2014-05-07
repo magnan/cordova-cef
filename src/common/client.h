@@ -89,7 +89,7 @@ public:
 
   virtual CefRefPtr<CefBrowser> GetBrowser() const {return _browser;}
 
-  virtual void toggleFullScreen(CefWindowHandle window) = 0;
+  virtual void toggleFullScreen(CefWindowHandle window, bool visible) = 0;
 
 protected:
 

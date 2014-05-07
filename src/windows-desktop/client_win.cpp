@@ -62,7 +62,7 @@ bool Client_Win::OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& e
         }
         case  VK_F11:
         {
-            toggleFullScreen(browser->GetHost()->GetWindowHandle());
+            toggleFullScreen(browser->GetHost()->GetWindowHandle(), true);
 
 		  // FM: Also show dev tools when exiting full screen for debugging purposes
 		  showDevTools(browser);
@@ -118,8 +118,9 @@ bool Client_Win::OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& e
   return false;
 }
 
-void Client_Win::toggleFullScreen(CefWindowHandle window)
+void Client_Win::toggleFullScreen(CefWindowHandle window, bool visible)
 {
+  LONG visibleFlag = (visible ? WS_VISIBLE : 0);
   window = GetParent(window);
   // Save current window state if not already fullscreen.  
   if(!_bIsFullScreen) 
@@ -136,10 +137,10 @@ void Client_Win::toggleFullScreen(CefWindowHandle window)
   if(_bIsFullScreen)
   {
     SetWindowLong(window, GWL_STYLE, 
-                  _savedWindowInfo.style & ~(WS_CAPTION | WS_THICKFRAME));
+                  _savedWindowInfo.style & ~(WS_CAPTION | WS_THICKFRAME) | visibleFlag);
     SetWindowLong(window, GWL_EXSTYLE, 
                   _savedWindowInfo.ex_style & ~(WS_EX_DLGMODALFRAME | 
-                  WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+                  WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE) | visibleFlag);
 
     MONITORINFO monitor_info;
     monitor_info.cbSize = sizeof(monitor_info);
@@ -154,8 +155,8 @@ void Client_Win::toggleFullScreen(CefWindowHandle window)
   }
   else
   {
-    SetWindowLong(window, GWL_STYLE, _savedWindowInfo.style);
-    SetWindowLong(window, GWL_EXSTYLE, _savedWindowInfo.ex_style);
+    SetWindowLong(window, GWL_STYLE, _savedWindowInfo.style | visibleFlag);
+    SetWindowLong(window, GWL_EXSTYLE, _savedWindowInfo.ex_style | visibleFlag);
 
     SetWindowPos(window, NULL, 
       _savedWindowInfo.rect.left, 

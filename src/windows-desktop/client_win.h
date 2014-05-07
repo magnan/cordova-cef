@@ -33,7 +33,7 @@ public:
 
   virtual bool OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& event, CefEventHandle os_event ) OVERRIDE;
 
-  virtual void toggleFullScreen(CefWindowHandle window) OVERRIDE;
+  virtual void toggleFullScreen(CefWindowHandle window, bool visible) OVERRIDE;
 
 private:
 

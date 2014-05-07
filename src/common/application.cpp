@@ -109,7 +109,7 @@ void Application::OnContextInitialized()
 
   // FM: Create the browser syncronously instead and start in full screen mode
   CefBrowserHost::CreateBrowserSync(info, _client.get(), _startupUrl, browserSettings, NULL);
-  _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle());
+  _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle(), false);
   ShowWindow(_mainWindow, SW_SHOW );
 }
 
