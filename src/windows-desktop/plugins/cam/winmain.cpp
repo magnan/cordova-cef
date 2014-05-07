@@ -478,6 +478,9 @@ done:
 			}
 			return 0;
 
+		case WM_CLOSE:
+			return 0;
+
         case WM_APP_CAPTURE_EVENT:
             {
                 if (g_pEngine)
@@ -575,7 +578,7 @@ HWND CreateMainWindow(HINSTANCE hInstance)
 
     // Create the window.
     return CreateWindowEx(0, CLASS_NAME, L"Capture Application",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        WS_OVERLAPPEDWINDOW & ~(WS_SYSMENU), CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         NULL, NULL, hInstance, NULL);
 };
 

@@ -51,7 +51,7 @@ Application_Win::Application_Win(std::shared_ptr<Helper::Paths> paths)
 
   RegisterClassExW(&wcex);
 
-  DWORD window_style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
+  DWORD window_style = WS_OVERLAPPEDWINDOW & ~(WS_SYSMENU) | WS_CLIPCHILDREN;
 
   RECT neededRect;
   // TODO: move to config.xml
@@ -155,9 +155,8 @@ LRESULT CALLBACK Application_Win::WndProc( HWND hWnd, UINT message, WPARAM wPara
     }
     break;
 
-
-
     case WM_CLOSE:
+		// return 0;
     {
       if (appwindow->_client.get() && !appwindow->_client->IsClosing()) {
         CefRefPtr<CefBrowser> browser = appwindow->_client->GetBrowser();
@@ -175,7 +174,7 @@ LRESULT CALLBACK Application_Win::WndProc( HWND hWnd, UINT message, WPARAM wPara
 
       // Allow the close.
       break;
-    }   
+    }
 
     case WM_DESTROY:
     {
