@@ -125,11 +125,15 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   CefRefPtr<CefV8Value> camera = CefV8Value::CreateFunction("camera", this);
   _exposedJSObject->SetValue("camera", camera, V8_PROPERTY_ATTRIBUTE_READONLY);
   global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+  
+  _exposedJSObject = CefV8Value::CreateObject(NULL);
+  CefRefPtr<CefV8Value> function = CefV8Value::CreateFunction("quit", this);
+  _exposedJSObject->SetValue("quit", function, V8_PROPERTY_ATTRIBUTE_READONLY);
+  global->SetValue("_quitNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
 }
 
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
 {
-  
 }
 
 CefRefPtr<CefV8Value> callback_func;
@@ -161,6 +165,12 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
 	  callback_func = arguments[0];
       callback_context = CefV8Context::GetCurrentContext();
 	  CameraCapture(&CameraDone);
+	  return true;
+  }
+  if(name == "quit" && arguments.size() == 0)
+  {
+      CefRefPtr<CefBrowser> browser = _client->GetBrowser();
+	  browser->GetHost()->CloseBrowser(false);
 	  return true;
   }
   return false;
