@@ -1,0 +1,86 @@
+INSTALLATION
+------------
+
+http://iweb.dl.sourceforge.net/project/boost/boost-binaries/1.55.0/boost_1_55_0-msvc-11.0-32.exe
+  need to update the linker directories properties
+
+
+CAMERA
+------
+
+AVICap
+  http://www.dreamincode.net/forums/topic/193519-win32-webcam-program
+  VB Capture an image from a Web cam: http://www.vb-tips.com/Webcam.aspx
+    http://social.msdn.microsoft.com/forums/vstudio/en-US/ca5675b0-c8c0-4b16-927d-5a5eea74e650/webcam-single-image-with-avicap32dll
+    the code worked the first time but I was not able to make it work a second time
+
+Video For Windows API (VFW)
+  very old and problematic programming interface for capturing camera images/video
+
+Windows Image Acquisition (WIA)
+  saw some people saying it was not really targeted at webcams
+
+Windows Imaging Component (WIC)
+
+DirectShow
+  older and the following project says it has problems on windows 8
+  http://www.codeproject.com/Tips/559437/Capturing-Video-from-Web-camera-on-Windows-and-by
+  "Skype uses DirectShow for capturing"
+
+MediaFoundation
+  Samples: http://msdn.microsoft.com/en-us/library/aa371827(v=vs.85).aspx
+  http://www.codeproject.com/Tips/559437/Capturing-Video-from-Web-camera-on-Windows-and-by
+  http://code.msdn.microsoft.com/windowsdesktop/Media-Foundation-Capture-78504c83#content
+
+MediaCapture API
+  Windows 8 only
+  Windows store apps only
+  Windows Runtime (WinRT)
+  WRL (Windows Runtime C++ Template Library) (?)
+  http://msdn.microsoft.com/en-us/library/windows/apps/windows.media.capture.cameracaptureui.capturefileasync.aspx?cs-save-lang=1&cs-lang=cpp#code-snippet-1
+
+
+TODO
+----
+
+- Fix C:\images hardcoded path
+X Clean close of camera window
+- Do we need to make sure the user can't click the record until the stream is displaying? Yes
+  ? Not much we can do as the Windows MF_CAPTURE_ENGINE_PREVIEW_STARTED message is called immediately
+X Preserve user selected choice
+X Background in lower part of window
+X Does Francois want a way for user to cancel?
+- Handle alt-F4 in capture window
+  ? Ask Francois how the application is quit
+X Handle clicking X while recording somehow
+  ! If callback receives 0 (Canceled) it must delete file if present
+X Check and clean the gitignore vs VS files
+- JS function to open a browser window like JS window.open()
+  ? Another fullblown browser?
+- JS function to call shell-command (system!?)
+  ? Use ShellExecute or like Gambit use
+    > (##get-shell-program)
+    ("sh" . "-c")
+- Scrollbars are red
+  ? Can't reproduce problem
+- Very difficult to click on camera buttons on tablette
+  ? Probably simply make buttons bigger
+    ? I could probably make a setting ButtonSize = 30
+- Validate that photo / video works ok on tablette
+- Les buttons sont pas centres
+- Take photo is broken
+  - Need to handle PHOTO_TAKEN event correctly and not close the engine right away
+    - Maybe correct handling of events will fix waiting for camera initialized
+- Button at left to cycle available cameras
+  - Remember!?
+
+
+QUESTIONS
+---------
+
+X Is it ok to use a Windows 8 only API? Yes
+X Is it possible to render into an HTML 'control'? Too involved. Simply use WinGDI
+X No png for hover? Not needed as we are on a tablette
+X No png for disabled? Do not show
+X What is the deadline? 15 may or mercredi
+X SVG, Skia, ...
