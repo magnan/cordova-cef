@@ -292,6 +292,7 @@ done:
         }
         UpdateUI(hwnd);
     }
+
     void OnStopPreview(HWND hwnd)
     {
         HRESULT hr = g_pEngine->StopPreview();
@@ -301,6 +302,7 @@ done:
         }
         UpdateUI(hwnd);
     }
+
     void OnStartPreview (HWND hwnd)
     {
         HRESULT hr = g_pEngine->StartPreview();
@@ -310,6 +312,7 @@ done:
         }
         UpdateUI(hwnd);
     }
+
     void OnTakePhoto(HWND hwnd)
     {
         wchar_t filename[MAX_PATH];
@@ -423,8 +426,10 @@ done:
 				OnStopRecord(hwnd);
 				recordZone.isSelected = false;
 				InvalidateRect(hwnd, NULL, 0);
+				RedrawWindow(hwnd, NULL, NULL, 0);
 				cameraCode = 1;
 				cameraFilename = VideoFileName;
+				Sleep(500);
 				PostQuitMessage(0);
 			}
 			else
@@ -445,6 +450,7 @@ done:
 			RedrawWindow(hwnd, NULL, NULL, 0);
 			cameraCode = 2;
 			cameraFilename = PhotoFileName;
+			Sleep(500);
 			PostQuitMessage(0);
 		}
 	}
