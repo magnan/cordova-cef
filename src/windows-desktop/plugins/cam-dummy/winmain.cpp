@@ -366,11 +366,14 @@ void SetupZones(bool firstTime)
 	recordZone.isSelected = false;
 }
 
+bool cameraFullScreen = false;
+
 DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
 {
 	HWND hwnd = CreateMainWindow(NULL);
 
-	MakeWindowFullscreen(hwnd);
+	if (cameraFullScreen)
+		MakeWindowFullscreen(hwnd);
 	
 	MainWindow::OnStartPreview(hwnd);
 
@@ -403,7 +406,7 @@ void CameraInit()
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 }
 
-__declspec(dllexport) void __cdecl CameraCapture(CameraDoneCallback callback)
+__declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, CameraDoneCallback callback)
 {
 	bool firstTime = ! cameraInited;
 
@@ -417,6 +420,8 @@ __declspec(dllexport) void __cdecl CameraCapture(CameraDoneCallback callback)
 	
 	cameraCode = 0;
 	cameraFilename = L"";
+
+	cameraFullScreen = startfullscreen;
 
     HANDLE thread = CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
 	WaitForSingleObject(thread,INFINITE);

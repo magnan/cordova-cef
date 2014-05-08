@@ -24,6 +24,8 @@
 
 #include "Camera.h"
 
+bool startfullscreen = false;
+
 Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application),
     _client(client),
@@ -69,6 +71,7 @@ void Application::OnContextInitialized()
   bool offscreenrendering = false;
   config()->getBoolPreference("OffScreenRendering", offscreenrendering);
   
+  config()->getBoolPreference("StartFullScreen", startfullscreen);
 
   if(offscreenrendering) 
   {
@@ -109,7 +112,8 @@ void Application::OnContextInitialized()
 
   // FM: Create the browser syncronously instead and start in full screen mode
   CefBrowserHost::CreateBrowserSync(info, _client.get(), _startupUrl, browserSettings, NULL);
-  _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle(), false);
+  if (startfullscreen)
+	  _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle(), false);
   ShowWindow(_mainWindow, SW_SHOW );
 }
 
@@ -164,7 +168,7 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
 	  callback_func = arguments[0];
       callback_context = CefV8Context::GetCurrentContext();
-	  CameraCapture(&CameraDone);
+	  CameraCapture(startfullscreen, &CameraDone);
 	  return true;
   }
   if(name == "quit" && arguments.size() == 0)

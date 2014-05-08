@@ -32,6 +32,9 @@
 #include "helper.h"
 
 
+extern bool startfullscreen;
+
+
 class Application : public CefApp,
                     public CefBrowserProcessHandler,
                     public CefRenderProcessHandler,

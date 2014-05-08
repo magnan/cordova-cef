@@ -40,6 +40,7 @@
     <preference name="Fullscreen" value="true" />
     -->
     <preference name="OffScreenRendering" value="false" />
+    <preference name="StartFullScreen" value="true" />
 
     <feature name="Device">
         <param name="cef-package" value="Device" onload="true"/>

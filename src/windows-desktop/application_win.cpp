@@ -156,7 +156,6 @@ LRESULT CALLBACK Application_Win::WndProc( HWND hWnd, UINT message, WPARAM wPara
     break;
 
     case WM_CLOSE:
-		// return 0;
     {
       if (appwindow->_client.get() && !appwindow->_client->IsClosing()) {
         CefRefPtr<CefBrowser> browser = appwindow->_client->GetBrowser();
