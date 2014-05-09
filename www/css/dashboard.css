@@ -1,0 +1,55 @@
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 14px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+
+
+
+
+
+.FTFwrapper {
+   position: absolute;
+}
+
+
+.childFTField {
+	display: block;
+	position: absolute;
+	/*top:84px;
+	left: 170px;*/
+	width: 420px;
+	height: 24px;
+	font-size: 1.5em;
+	padding: 5px; 
+	background-color: transparent;
+	border-width: 0px;
+	outline-width: 0;
+	
+}
+
+
+.biggerFont
+{
+	font-size: 1.5em;
+}
+
+

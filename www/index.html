@@ -1,56 +1,103 @@
-<!DOCTYPE html>
-<!--
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
--->
-<html>
-    <head>
-        <title>Cordova-CEF test</title>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
-        <script language="JavaScript">
-        function myCallback(code, filename) {
-          if (code == 0)
-          	alert("Canceled: " + filename);
-          if (code == 1)
-          	alert("Video: " + filename);
-          else if (code == 2)
-          	alert("Photo: " + filename);
-        }
-        </script>
-		<style>
-			body {
-				background-color: rgba(255, 0, 0, 0.5);
-			}
-		</style>
-    </head>
-    <body>
-        <h1>Hey, it's Cordova!</h1>
-		<button onclick="_cameraNative.camera(myCallback)">Camera Capture</button>
-		<br></br>
-		<button onclick="_quitNative.quit()">Quit</button>
-        <ol>
-            <li>Check your console log for any white-list rejection errors.</li>
-            <li>Add your allowed <strong>hosts</strong> in config.xml as access tags and set the origin attribute. (wildcards OK, don't enter the URL scheme)</li>
-        </ol>
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-    </body>
+<html lang="en"><head>
+      <meta charset="utf-8">
+      <title>Athena</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <meta name="author" content="Categorical Design Solutions">
+      <link rel="shortcut icon" href="assets/ico/favicon.ico">
+      <link href="plugin/font-awesome-4.0.3/css/font-awesome.css" rel="stylesheet">
+      <link href="fonts/webfontkit-20140114-115201/stylesheet.css" rel="stylesheet">
+      <link href="fonts/webfontkit-20140114-123852/stylesheet.css" rel="stylesheet">
+      <link href="css/dashboard.css" rel="stylesheet">
+      <!--<script src="plugin/pouchdb-1.1.0.min.js"></script>-->
+	  <script src="plugin/pouchdb-2.1.2.min.js"></script>
+      <script src="js/CouchDBInterface.js"></script>
+      <script src="plugin/d3/d3.v3.min.js"></script>
+	  <script src="plugin/jquery-1.11.0.min.js"></script>
+	  <script src="plugin/jquery.couch.js"></script>
+	  <script src="plugin/jquery-form.js"></script>
+	  <script src="plugin/cordova.js"></script>
+      <script src="plugin/Snap.svg-0.1.0/dist/snap.svg-min.js"></script>
+      <script src="plugin/pablo.min.js"></script>
+      <script src="js/Server-Push.js"></script>
+      <script src="js/textFlow.js"></script>
+      <script src="js/anim.js"></script>
+      <script src="js/dashboard.js"></script>
+      <script src="js/widgets.js"></script>
+	  <script src="js/aide.js"></script>
+      <style type="text/css">body {-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select:none;}.pStep{cursor:default;}</style>
+   </head>
+   <body id="athena" style="margin: 0px">
+		<svg id="main" width="1024" height="768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+			<defs>
+            <linearGradient id="gWait" x1="0" y1="0" x2="1" y2="1">
+               <stop offset="0%" stop-color="white"></stop>
+               <stop offset="100%" stop-color="rgb(90%,90%,90%)"></stop>
+            </linearGradient>
+            <linearGradient id="gDone" x1="0" y1="0" x2="1" y2="1">
+               <stop offset="0%" stop-color="rgb(51,153,39)"></stop>
+               <stop offset="100%" stop-color="rgb(19,180,0)"></stop>
+            </linearGradient>
+            <linearGradient id="gActive" x1="0" y1="0" x2="1" y2="1">
+               <stop offset="0%" stop-color="rgb(230,230,94)"></stop>
+               <stop offset="100%" stop-color="rgb(255,255,150)"></stop>
+            </linearGradient>
+            <linearGradient id="gCancelled" x1="0" y1="0" x2="1" y2="1">
+               <stop offset="0%" stop-color="rgb(255,99,98)"></stop>
+               <stop offset="100%" stop-color="rgb(255,155,157)"></stop>
+            </linearGradient>
+            <filter id="emboss">
+               <feOffset dx="1" dy="1" result="result1"></feOffset>
+               <feOffset dx="-1" dy="-1" in="SourceAlpha" result="result0"></feOffset>
+               <feComposite in="result0" in2="result1" operator="out"></feComposite>
+               <feGaussianBlur stdDeviation="1" result="blurred"></feGaussianBlur>
+               <feComposite in="blurred" in2="SourceAlpha" operator="in"></feComposite>
+               <feBlend mode="darken" in2="SourceGraphic"></feBlend>
+            </filter>
+            <filter id="emboss2">
+               <feOffset dx="3" dy="3" result="result1"></feOffset>
+               <feOffset dx="-3" dy="-3" in="SourceAlpha" result="result0"></feOffset>
+               <feComposite in="result0" in2="result1" operator="out"></feComposite>
+               <feGaussianBlur stdDeviation="1" result="blurred"></feGaussianBlur>
+               <feComposite in="blurred" in2="SourceAlpha" operator="in"></feComposite>
+               <feBlend mode="darken" in2="SourceGraphic"></feBlend>
+            </filter>
+            <filter id="extrude">
+               <feOffset dx="-1" dy="-1" result="result1"></feOffset>
+               <feOffset dx="1" dy="1" in="SourceAlpha" result="result0"></feOffset>
+               <feComposite in="result0" in2="result1" operator="out"></feComposite>
+               <feGaussianBlur stdDeviation="1" result="blurred"></feGaussianBlur>
+               <feComposite in="blurred" in2="SourceAlpha" operator="in"></feComposite>
+               <feBlend mode="darken" in2="SourceGraphic"></feBlend>
+            </filter>
+            <filter id="shadow">
+               <feOffset dx="10" dy="10" in="SourceAlpha" result="result1"></feOffset>
+               <feGaussianBlur in="result1" stdDeviation="9" result="result2"></feGaussianBlur>
+               <feBlend mode="normal" in="SourceGraphic" in2="result2"></feBlend>
+            </filter>
+            <filter id="glow">
+               <feGaussianBlur stdDeviation="2" result="coloredBlur"></feGaussianBlur>
+               <feMerge>
+                  <feMerge in="coloredBlur"></feMerge>
+                  <feMerge in="SourceGraphic"></feMerge>
+               </feMerge>
+            </filter>
+            <filter id="diffuse">
+               <feGaussianBlur stdDeviation="4" result="blurred"></feGaussianBlur>
+            </filter>
+            <mask id="userChatIcon" x="0" y="0" width="40" height="40">
+               <circle fill="#ffffff" cx="20" cy="20" r="20"></circle>
+            </mask>
+         </defs>
+         	<g id="outerContent"></g>
+       </svg>
+	   <form id="DUMMYuploadForm" method="POST" enctype="multipart/form-data" style="display: none">
+			<input name="MAX_FILE_SIZE"  input-type="hidden" value="100000">
+			<input id="SIContentInput" name="content"  input-type="hidden" value="">
+	   </form>
+	  <script src="plugin/hammer.min.js"></script>
+	  <script src="js/touch.js"></script>
+      <script src="js/loader.js"></script>
+	  <script src="js/boot.js"></script>
+	</body>
 </html>

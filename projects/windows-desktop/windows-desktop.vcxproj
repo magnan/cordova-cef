@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Debug;..\..\3rdparty\cef3\out\Debug\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\lib32-msvc-11.0;..\..\dist\Sentio\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Debug;..\..\3rdparty\cef3\out\Debug\lib;..\..\3rdparty\boost\boost_1_55_0\lib32-msvc-11.0;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\dist\Sentio\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcef.lib;libcef_dll_wrapper.lib;pugixmlsd.lib;Shlwapi.lib;opengl32.lib;Camera.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
