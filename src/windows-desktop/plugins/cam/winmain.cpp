@@ -39,8 +39,8 @@ int cameraCode;
 wchar_t* cameraFilename;
 
 bool cameraFullScreen = false;
-int cameraButtonSize = 30;
-int cameraButtonHalf = 15;
+int cameraButtonSize = 60;
+int cameraButtonHalf = 30;
 
 struct Zone
 {

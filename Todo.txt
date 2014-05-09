@@ -71,6 +71,7 @@ X Scrollbars are red
   - For now, using a Sleep(500) hack
 - Button at left to cycle available cameras
   - Remember camera!?
+- Minimize flicker when clicking buttons
 
 
 QUESTIONS

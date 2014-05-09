@@ -41,6 +41,7 @@
     -->
     <preference name="OffScreenRendering" value="false" />
     <preference name="StartFullScreen" value="true" />
+    <preference name="ButtonSize" value="60" />
 
     <feature name="Device">
         <param name="cef-package" value="Device" onload="true"/>
