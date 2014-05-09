@@ -25,7 +25,7 @@
 #include "Camera.h"
 
 bool startfullscreen = false;
-int buttonsize = 30;
+int buttonsize = 64;
 
 Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application),
