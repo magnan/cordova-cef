@@ -25,6 +25,7 @@
 #include "Camera.h"
 
 bool startfullscreen = false;
+int buttonsize = 30;
 
 Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application),
@@ -72,6 +73,7 @@ void Application::OnContextInitialized()
   config()->getBoolPreference("OffScreenRendering", offscreenrendering);
   
   config()->getBoolPreference("StartFullScreen", startfullscreen);
+  config()->getIntPreference("ButtonSize", buttonsize);
 
   if(offscreenrendering) 
   {
@@ -168,7 +170,7 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
 	  callback_func = arguments[0];
       callback_context = CefV8Context::GetCurrentContext();
-	  CameraCapture(startfullscreen, &CameraDone);
+	  CameraCapture(startfullscreen, buttonsize, &CameraDone);
 	  return true;
   }
   if(name == "quit" && arguments.size() == 0)

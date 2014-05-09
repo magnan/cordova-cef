@@ -56,15 +56,13 @@ X Does Francois want a way for user to cancel?
 X Handle clicking X while recording somehow
   ! If callback receives 0 (Canceled) it must delete file if present
 X Check and clean the gitignore vs VS files
-- JS function to open a browser window like JS window.open()
-  ? Another fullblown browser?
 - JS function to call shell-command (system!?)
   ? Use ShellExecute or like Gambit use
     > (##get-shell-program)
     ("sh" . "-c")
-- Scrollbars are red
+X Scrollbars are red
   ? Can't reproduce problem
-- Very difficult to click on camera buttons on tablette
+# Very difficult to click on camera buttons on tablette
   ? Probably simply make buttons bigger
     ? I could probably make a setting ButtonSize = 30
 - Take photo is broken
@@ -72,7 +70,7 @@ X Check and clean the gitignore vs VS files
     - Maybe correct handling of events will fix waiting for camera initialized
   - For now, using a Sleep(500) hack
 - Button at left to cycle available cameras
-  - Remember!?
+  - Remember camera!?
 
 
 QUESTIONS

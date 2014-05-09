@@ -33,6 +33,7 @@
 
 
 extern bool startfullscreen;
+extern int buttonsize;
 
 
 class Application : public CefApp,

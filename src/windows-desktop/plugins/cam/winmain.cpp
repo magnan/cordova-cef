@@ -38,9 +38,13 @@ bool cameraRecord = true;
 int cameraCode;
 wchar_t* cameraFilename;
 
+bool cameraFullScreen = false;
+int cameraButtonSize = 30;
+int cameraButtonHalf = 15;
+
 struct Zone
 {
-	int left;
+	int center;
 	int top;
 	Rect rect;
 	WCHAR* default;
@@ -190,11 +194,10 @@ namespace MainWindow
 
 	void sizeZone(Zone* zone, RECT* windowrect)
 	{
-		zone->rect.X = (windowrect->right - windowrect->left) / 2 + zone->left;
-		zone->rect.Y = windowrect->bottom - 40 + zone->top;
-		zone->rect.Width = 30;
-		zone->rect.Height = 30;
-	
+		zone->rect.X = (windowrect->right - windowrect->left) / 2 + zone->center - cameraButtonHalf;
+		zone->rect.Y = windowrect->bottom - cameraButtonSize - 10 + zone->top;
+		zone->rect.Width = cameraButtonSize;
+		zone->rect.Height = cameraButtonSize;
 	}
 
     void OnSize(HWND hwnd, UINT state, int cx, int cy)
@@ -209,7 +212,7 @@ namespace MainWindow
 			sizeZone(&stillZone, &windowrect);
 			sizeZone(&recordZone, &windowrect);
             
-			cy -= 50;
+			cy -= (cameraButtonSize + 20);
             MoveWindow(hPreview, 0, 0, cx, cy, TRUE);
 
 			InvalidateRect(hwnd, NULL, 0);
@@ -620,36 +623,39 @@ void MakeWindowFullscreen(HWND hwnd)
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 }
 
+int Adjust(int center)
+{
+	return center * cameraButtonSize / 30;
+}
+
 void SetupZones(bool firstTime)
 {
-	closeZone.left = -270;
+	closeZone.center = Adjust(-120);
 	closeZone.top = -4;
 	closeZone.default = L"C:\\images\\ath-tool-reject.png";
 	closeZone.selected = L"C:\\images\\ath-tool-reject_selected.png";
 	closeZone.isSelected = false;
 
-	videoZone.left = -100;
+	videoZone.center = Adjust(-20);
 	videoZone.top = 0;
 	videoZone.default = L"C:\\images\\ath-tool-video.png";
 	videoZone.selected = L"C:\\images\\ath-tool-video_selected.png";
 	if (firstTime)
 		videoZone.isSelected = true;
 
-	stillZone.left = -60;
+	stillZone.center = Adjust(20);
 	stillZone.top = 0;
 	stillZone.default = L"C:\\images\\ath-tool-still.png";
 	stillZone.selected = L"C:\\images\\ath-tool-still_selected.png";
 	if (firstTime)
 		stillZone.isSelected = false;
 	
-	recordZone.left = 100;
+	recordZone.center = Adjust(120);
 	recordZone.top = 0;
 	recordZone.default = L"C:\\images\\ath-tool-record.png";
 	recordZone.selected = L"C:\\images\\ath-tool-record_selected.png";
 	recordZone.isSelected = false;
 }
-
-bool cameraFullScreen = false;
 
 DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
 {
@@ -725,7 +731,7 @@ done:
     }
 }
 
-__declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, CameraDoneCallback callback)
+__declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	bool firstTime = ! cameraInited;
 
@@ -734,13 +740,15 @@ __declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, CameraDon
 		CameraInit();
 		cameraInited = true;
 	}
-
-	SetupZones(firstTime);
 	
 	cameraCode = 0;
 	cameraFilename = L"";
-
+	
 	cameraFullScreen = startfullscreen;
+	cameraButtonSize = buttonsize;
+	cameraButtonHalf = buttonsize / 2;
+
+	SetupZones(firstTime);
 
     HANDLE thread = CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
 	WaitForSingleObject(thread,INFINITE);
