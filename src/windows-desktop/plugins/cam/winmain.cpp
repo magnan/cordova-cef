@@ -32,6 +32,8 @@ HPOWERNOTIFY    g_hPowerNotifyMonitor = NULL;
 SYSTEM_POWER_CAPABILITIES   g_pwrCaps;
 bool            g_fSleepState = false;
 
+wchar_t appdir[MAX_PATH];
+
 bool cameraInited = false;
 bool cameraRecord = true;
 
@@ -56,6 +58,18 @@ Zone closeZone;
 Zone videoZone;
 Zone stillZone;
 Zone recordZone;
+
+void SetupApp()
+{
+	GetModuleFileNameW(NULL, appdir, MAX_PATH);
+	PathRemoveFileSpec(appdir);
+}
+
+wchar_t* AppFile(wchar_t* file, wchar_t* filename)
+{
+	PathCombine(file, appdir, filename);
+	return file;
+}
 
 // Implements the window procedure for the main application window.
 
@@ -152,7 +166,8 @@ namespace MainWindow
 
 	void PaintZone(Graphics* grpx, Zone* zone)
 	{
-	    Image* image = new Image((zone->isSelected) ? zone->selected : zone->default);
+		wchar_t file[MAX_PATH];
+	    Image* image = new Image(AppFile(file, (zone->isSelected) ? zone->selected : zone->default));
 	    grpx->DrawImage(image,zone->rect);
 	}
 
@@ -168,6 +183,7 @@ namespace MainWindow
 	    Graphics grpx(hdc);
 
 		// Background
+		wchar_t file[MAX_PATH];
 		RECT windowrect;
 		GetClientRect(hwnd, &windowrect);
 		Rect rect;
@@ -175,7 +191,7 @@ namespace MainWindow
 		rect.Y = windowrect.bottom - 252;
 		rect.Width = windowrect.right - windowrect.left;
 		rect.Height = 252;
-	    Image* image = new Image(L"C:\\images\\ath-tool-bg.png");
+	    Image* image = new Image(AppFile(file, L"images\\ath-tool-bg.png"));
 	    grpx.DrawImage(image,rect);
 
 		if (cameraRecord)
@@ -632,28 +648,28 @@ void SetupZones(bool firstTime)
 {
 	closeZone.center = Adjust(-120);
 	closeZone.top = -4;
-	closeZone.default = L"C:\\images\\ath-tool-reject.png";
-	closeZone.selected = L"C:\\images\\ath-tool-reject_selected.png";
+	closeZone.default = L"images\\ath-tool-reject.png";
+	closeZone.selected = L"images\\ath-tool-reject_selected.png";
 	closeZone.isSelected = false;
 
 	videoZone.center = Adjust(-20);
 	videoZone.top = 0;
-	videoZone.default = L"C:\\images\\ath-tool-video.png";
-	videoZone.selected = L"C:\\images\\ath-tool-video_selected.png";
+	videoZone.default = L"images\\ath-tool-video.png";
+	videoZone.selected = L"images\\ath-tool-video_selected.png";
 	if (firstTime)
 		videoZone.isSelected = true;
 
 	stillZone.center = Adjust(20);
 	stillZone.top = 0;
-	stillZone.default = L"C:\\images\\ath-tool-still.png";
-	stillZone.selected = L"C:\\images\\ath-tool-still_selected.png";
+	stillZone.default = L"images\\ath-tool-still.png";
+	stillZone.selected = L"images\\ath-tool-still_selected.png";
 	if (firstTime)
 		stillZone.isSelected = false;
 	
 	recordZone.center = Adjust(120);
 	recordZone.top = 0;
-	recordZone.default = L"C:\\images\\ath-tool-record.png";
-	recordZone.selected = L"C:\\images\\ath-tool-record_selected.png";
+	recordZone.default = L"images\\ath-tool-record.png";
+	recordZone.selected = L"images\\ath-tool-record_selected.png";
 	recordZone.isSelected = false;
 }
 
@@ -682,6 +698,8 @@ DWORD WINAPI CreateWindowThreaded( LPVOID lpParam )
 void CameraInit()
 {
 	bool bCoInit = false, bMFStartup = false;
+
+	SetupApp();
 
 	GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
