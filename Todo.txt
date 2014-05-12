@@ -43,8 +43,7 @@ MediaCapture API
 TODO
 ----
 
-- Fix C:\images hardcoded path
-  - Use PathCombine
+X Fix C:\images hardcoded path
 X Clean close of camera window
 - Do we need to make sure the user can't click the record until the stream is displaying? Yes
   ? Not much we can do as the Windows MF_CAPTURE_ENGINE_PREVIEW_STARTED message is called immediately
@@ -62,9 +61,7 @@ X Check and clean the gitignore vs VS files
     ("sh" . "-c")
 X Scrollbars are red
   ? Can't reproduce problem
-# Very difficult to click on camera buttons on tablette
-  ? Probably simply make buttons bigger
-    ? I could probably make a setting ButtonSize = 30
+X Very difficult to click on camera buttons on tablette
 - Take photo is broken
   - Need to handle PHOTO_TAKEN event correctly and not close the engine right away
     - Maybe correct handling of events will fix waiting for camera initialized
