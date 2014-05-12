@@ -66,14 +66,17 @@ X Very difficult to click on camera buttons on tablette
   - Need to handle PHOTO_TAKEN event correctly and not close the engine right away
     - Maybe correct handling of events will fix waiting for camera initialized
   - For now, using a Sleep(500) hack
-- Button at left to cycle available cameras
-  - Remember camera!?
+X Button at left to cycle available cameras
 - Minimize flicker when clicking buttons
 - What is desired behavior if something goes wrong?
   - At the moment, it pops an error box and... not sure...
 - General review and cleanup of all the code
 - Delete cancelled video from C++
   - Make sure code like changing device that stops the preview also cancels recording and deletes the video
+X Remember camera!?
+  X In persistent settings!? Yes but not for now
+    X Same for Video / Photo might as well!?
+- Sound on click!?
 
 
 QUESTIONS

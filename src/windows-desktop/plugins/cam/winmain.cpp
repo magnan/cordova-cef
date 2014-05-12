@@ -46,7 +46,7 @@ int cameraButtonHalf = 30;
 
 Devices devices;
 IMFActivate* selectedDevice = NULL;
-int selectedDeviceRank = -1;
+int selectedDeviceRank = 0;
 
 struct Zone
 {
@@ -70,7 +70,7 @@ void SetupApp()
 	PathRemoveFileSpec(appdir);
 }
 
-void SetupDevices()
+void InitDevices()
 {
     IMFAttributes *pAttributes = NULL;
 
@@ -190,7 +190,7 @@ namespace MainWindow
             goto done;
         }
     
-        hr = SelectDevice(hPreview, 1);
+        hr = SelectDevice(hPreview, selectedDeviceRank);
         if (FAILED(hr))
         {
             ShowError(hwnd, IDS_ERR_SET_DEVICE, hr);
@@ -762,7 +762,6 @@ void CameraInit()
 	bool bCoInit = false, bMFStartup = false;
 
 	SetupApp();
-	SetupDevices();
 
 	GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -796,6 +795,8 @@ void CameraInit()
     }
 
     bMFStartup = true;
+	
+	InitDevices();
 
 done:
     if (FAILED(hr))
