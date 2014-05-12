@@ -487,42 +487,45 @@ done:
 
 	void recordAction(HWND hwnd)
 	{
-		if (videoZone.isSelected)
+		if (g_pEngine->IsPreviewing())
 		{
-			if (g_pEngine->IsRecording())
+			if (videoZone.isSelected)
 			{
-				ButtonClick();
-				OnStopRecord(hwnd);
-				recordZone.isSelected = false;
-				InvalidateRect(hwnd, NULL, 0);
-				RedrawWindow(hwnd, NULL, NULL, 0);
-				cameraCode = 1;
-				cameraFilename = VideoFileName;
-				Sleep(500);
-				PostQuitMessage(0);
+				if (g_pEngine->IsRecording())
+				{
+					ButtonClick();
+					OnStopRecord(hwnd);
+					recordZone.isSelected = false;
+					InvalidateRect(hwnd, NULL, 0);
+					RedrawWindow(hwnd, NULL, NULL, 0);
+					cameraCode = 1;
+					cameraFilename = VideoFileName;
+					Sleep(500);
+					PostQuitMessage(0);
+				}
+				else
+				{
+					ButtonClick();
+					recordZone.isSelected = true;
+					InvalidateRect(hwnd, NULL, 0);
+					OnStartRecord(hwnd);
+				}
 			}
 			else
 			{
 				ButtonClick();
 				recordZone.isSelected = true;
 				InvalidateRect(hwnd, NULL, 0);
-				OnStartRecord(hwnd);
+				RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
+				OnTakePhoto(hwnd);
+				recordZone.isSelected = false;
+				InvalidateRect(hwnd, NULL, 0);
+				RedrawWindow(hwnd, NULL, NULL, 0);
+				cameraCode = 2;
+				cameraFilename = PhotoFileName;
+				Sleep(500);
+				PostQuitMessage(0);
 			}
-		}
-		else
-		{
-			ButtonClick();
-			recordZone.isSelected = true;
-			InvalidateRect(hwnd, NULL, 0);
-			RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
-			OnTakePhoto(hwnd);
-			recordZone.isSelected = false;
-			InvalidateRect(hwnd, NULL, 0);
-			RedrawWindow(hwnd, NULL, NULL, 0);
-			cameraCode = 2;
-			cameraFilename = PhotoFileName;
-			Sleep(500);
-			PostQuitMessage(0);
 		}
 	}
 
