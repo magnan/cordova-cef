@@ -146,6 +146,19 @@ void ShowError(HWND hwnd, UINT id, HRESULT hr)
 }
 
 
+void ShowDebug(PCTSTR format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    TCHAR string[MAX_PATH];
+
+    StringCbVPrintf(string, sizeof(string), format, args);
+    
+	MessageBox(NULL, string, NULL, MB_OK);
+}
+
+
 VOID DbgPrint(PCTSTR format, ...)
 {
     va_list args;

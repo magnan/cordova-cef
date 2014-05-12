@@ -69,6 +69,11 @@ X Very difficult to click on camera buttons on tablette
 - Button at left to cycle available cameras
   - Remember camera!?
 - Minimize flicker when clicking buttons
+- What is desired behavior if something goes wrong?
+  - At the moment, it pops an error box and... not sure...
+- General review and cleanup of all the code
+- Delete cancelled video from C++
+  - Make sure code like changing device that stops the preview also cancels recording and deletes the video
 
 
 QUESTIONS

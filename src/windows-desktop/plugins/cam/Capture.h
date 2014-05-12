@@ -38,6 +38,7 @@ HWND    CreatePreviewWindow(HINSTANCE hInstance, HWND hParent);
 HWND    CreateMainWindow(HINSTANCE hInstance);
 void    ShowError(HWND hwnd, PCWSTR szMessage, HRESULT hr);
 void    ShowError(HWND hwnd, UINT id, HRESULT hr);
+void    ShowDebug(PCTSTR format, ...);
 HRESULT CloneVideoMediaType(IMFMediaType *pSrcMediaType, REFGUID guidSubType, IMFMediaType **ppNewMediaType);
 HRESULT CreatePhotoMediaType(IMFMediaType *pSrcMediaType, IMFMediaType **ppPhotoMediaType);
 
@@ -79,12 +80,12 @@ HRESULT GetCollectionObject(IMFCollection *pCollection, DWORD index, IFACE **ppO
 }
 
 
-struct ChooseDeviceParam
+struct Devices
 {
-    ChooseDeviceParam() : ppDevices(NULL), count(0)
+    Devices() : ppDevices(NULL), count(0)
     {
     }
-    ~ChooseDeviceParam()
+    ~Devices()
     {
         for (DWORD i = 0; i < count; i++)
         {
