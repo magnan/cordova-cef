@@ -424,11 +424,18 @@ done:
 		return zone->rect.Contains(x, y);
 	}
 
+	void ButtonClick()
+	{
+		wchar_t file[MAX_PATH];
+		PlaySound(AppFile(file, L"sounds\\button.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	}
+
 
 	void captureClose(HWND hwnd)
 	{
 		if (g_pEngine->IsRecording())
 		{
+			ButtonClick();
 			OnStopRecord(hwnd);
 			recordZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
@@ -438,6 +445,7 @@ done:
 		}
 		else
 		{
+			ButtonClick();
 			cameraCode = 0;
 			cameraFilename = L"";
 			PostQuitMessage(0);
@@ -447,6 +455,7 @@ done:
 
 	void captureDevice(HWND hwnd)
 	{
+		ButtonClick();
 		g_pEngine->StopPreview();
 		SelectDevice(hPreview, (selectedDeviceRank + 1) % devices.count);
 	}
@@ -456,6 +465,7 @@ done:
 	{
 		if (!g_pEngine->IsRecording())
 		{
+			ButtonClick();
 			videoZone.isSelected = true;
 			stillZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
@@ -467,6 +477,7 @@ done:
 	{
 		if (!g_pEngine->IsRecording())
 		{
+			ButtonClick();
 			videoZone.isSelected = false;
 			stillZone.isSelected = true;
 			InvalidateRect(hwnd, NULL, 0);
@@ -480,6 +491,7 @@ done:
 		{
 			if (g_pEngine->IsRecording())
 			{
+				ButtonClick();
 				OnStopRecord(hwnd);
 				recordZone.isSelected = false;
 				InvalidateRect(hwnd, NULL, 0);
@@ -491,6 +503,7 @@ done:
 			}
 			else
 			{
+				ButtonClick();
 				recordZone.isSelected = true;
 				InvalidateRect(hwnd, NULL, 0);
 				OnStartRecord(hwnd);
@@ -498,6 +511,7 @@ done:
 		}
 		else
 		{
+			ButtonClick();
 			recordZone.isSelected = true;
 			InvalidateRect(hwnd, NULL, 0);
 			RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
