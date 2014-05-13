@@ -98,7 +98,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Release;..\..\3rdparty\cef3\out\Release\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\lib32-msvc-11.0;..\..\3rdparty\gambc\lib;..\..\dist\Sentio\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdparty\cef3\Release;..\..\3rdparty\cef3\out\Release\lib;..\..\3rdparty\pugixml\scripts\vs2010\x32;..\..\3rdparty\boost\boost_1_55_0\lib32-msvc-11.0;..\..\3rdparty\gambc\lib;..\..\dist\Sentio\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcef.lib;libcef_dll_wrapper.lib;pugixmls.lib;gambc.lib;Shlwapi.lib;ws2_32.lib;opengl32.lib;Camera.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
