@@ -32,6 +32,8 @@ HPOWERNOTIFY    g_hPowerNotifyMonitor = NULL;
 SYSTEM_POWER_CAPABILITIES   g_pwrCaps;
 bool            g_fSleepState = false;
 
+wchar_t appdir[MAX_PATH];
+
 bool cameraInited = false;
 bool cameraRecord = true;
 
@@ -39,8 +41,12 @@ int cameraCode;
 wchar_t* cameraFilename;
 
 bool cameraFullScreen = false;
-int cameraButtonSize = 30;
-int cameraButtonHalf = 15;
+int cameraButtonSize = 60;
+int cameraButtonHalf = 30;
+
+Devices devices;
+IMFActivate* selectedDevice = NULL;
+int selectedDeviceRank = 0;
 
 struct Zone
 {
@@ -53,9 +59,67 @@ struct Zone
 };
 
 Zone closeZone;
+Zone deviceZone;
 Zone videoZone;
 Zone stillZone;
 Zone recordZone;
+
+void SetupApp()
+{
+	GetModuleFileNameW(NULL, appdir, MAX_PATH);
+	PathRemoveFileSpec(appdir);
+}
+
+void InitDevices()
+{
+    IMFAttributes *pAttributes = NULL;
+
+    HRESULT hr = MFCreateAttributes(&pAttributes, 1);
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+
+    // Ask for source type = video capture devices
+    hr = pAttributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+
+    // Enumerate devices.
+    hr = MFEnumDeviceSources(pAttributes, &devices.ppDevices, &devices.count);
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+
+done:
+    SafeRelease(&pAttributes);
+    if (FAILED(hr))
+    {
+        ShowError(NULL, IDS_ERR_SET_DEVICE, hr);
+    }
+}
+
+HRESULT SelectDevice(HWND hPreview, int rank)
+{
+	HRESULT hr = g_pEngine->InitializeCaptureManager(hPreview, devices.ppDevices[rank]);
+    if (! FAILED(hr))
+	{
+		SafeRelease(&selectedDevice);
+		selectedDevice = devices.ppDevices[rank];
+		selectedDevice->AddRef();
+		selectedDeviceRank = rank;
+	}
+    return hr;
+}
+
+wchar_t* AppFile(wchar_t* file, wchar_t* filename)
+{
+	PathCombine(file, appdir, filename);
+	return file;
+}
 
 // Implements the window procedure for the main application window.
 
@@ -64,7 +128,6 @@ namespace MainWindow
     HWND hPreview = NULL;
     bool bRecording = false;
     bool bPreviewing = false;
-    IMFActivate* pSelectedDevice = NULL;
      
     wchar_t VideoFileName[MAX_PATH];
     wchar_t PhotoFileName[MAX_PATH];
@@ -127,7 +190,7 @@ namespace MainWindow
             goto done;
         }
     
-        hr = g_pEngine->InitializeCaptureManager(hPreview, pSelectedDevice);  
+        hr = SelectDevice(hPreview, selectedDeviceRank);
         if (FAILED(hr))
         {
             ShowError(hwnd, IDS_ERR_SET_DEVICE, hr);
@@ -152,7 +215,8 @@ namespace MainWindow
 
 	void PaintZone(Graphics* grpx, Zone* zone)
 	{
-	    Image* image = new Image((zone->isSelected) ? zone->selected : zone->default);
+		wchar_t file[MAX_PATH];
+	    Image* image = new Image(AppFile(file, (zone->isSelected) ? zone->selected : zone->default));
 	    grpx->DrawImage(image,zone->rect);
 	}
 
@@ -168,6 +232,7 @@ namespace MainWindow
 	    Graphics grpx(hdc);
 
 		// Background
+		wchar_t file[MAX_PATH];
 		RECT windowrect;
 		GetClientRect(hwnd, &windowrect);
 		Rect rect;
@@ -175,12 +240,13 @@ namespace MainWindow
 		rect.Y = windowrect.bottom - 252;
 		rect.Width = windowrect.right - windowrect.left;
 		rect.Height = 252;
-	    Image* image = new Image(L"C:\\images\\ath-tool-bg.png");
+	    Image* image = new Image(AppFile(file, L"images\\ath-tool-bg.png"));
 	    grpx.DrawImage(image,rect);
 
 		if (cameraRecord)
 		{
 			PaintZone(&grpx, &closeZone);
+			PaintZone(&grpx, &deviceZone);
 			PaintZone(&grpx, &videoZone);
 			PaintZone(&grpx, &stillZone);
 			PaintZone(&grpx, &recordZone);
@@ -208,6 +274,7 @@ namespace MainWindow
 			GetClientRect(hwnd, &windowrect);
 			
 			sizeZone(&closeZone, &windowrect);
+			sizeZone(&deviceZone, &windowrect);
 			sizeZone(&videoZone, &windowrect);
 			sizeZone(&stillZone, &windowrect);
 			sizeZone(&recordZone, &windowrect);
@@ -296,26 +363,6 @@ done:
         UpdateUI(hwnd);
     }
 
-    void OnStopPreview(HWND hwnd)
-    {
-        HRESULT hr = g_pEngine->StopPreview();
-        if (FAILED(hr))
-        {
-            ShowError(hwnd, IDS_ERR_RECORD, hr);
-        }
-        UpdateUI(hwnd);
-    }
-
-    void OnStartPreview (HWND hwnd)
-    {
-        HRESULT hr = g_pEngine->StartPreview();
-        if (FAILED(hr))
-        {
-            ShowError(hwnd, IDS_ERR_RECORD, hr);
-        }
-        UpdateUI(hwnd);
-    }
-
     void OnTakePhoto(HWND hwnd)
     {
         wchar_t filename[MAX_PATH];
@@ -377,11 +424,18 @@ done:
 		return zone->rect.Contains(x, y);
 	}
 
+	void ButtonClick()
+	{
+		wchar_t file[MAX_PATH];
+		PlaySound(AppFile(file, L"sounds\\button.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	}
+
 
 	void captureClose(HWND hwnd)
 	{
 		if (g_pEngine->IsRecording())
 		{
+			ButtonClick();
 			OnStopRecord(hwnd);
 			recordZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
@@ -391,6 +445,7 @@ done:
 		}
 		else
 		{
+			ButtonClick();
 			cameraCode = 0;
 			cameraFilename = L"";
 			PostQuitMessage(0);
@@ -398,10 +453,19 @@ done:
 	}
 
 
+	void captureDevice(HWND hwnd)
+	{
+		ButtonClick();
+		g_pEngine->StopPreview();
+		SelectDevice(hPreview, (selectedDeviceRank + 1) % devices.count);
+	}
+
+
 	void captureVideo(HWND hwnd)
 	{
 		if (!g_pEngine->IsRecording())
 		{
+			ButtonClick();
 			videoZone.isSelected = true;
 			stillZone.isSelected = false;
 			InvalidateRect(hwnd, NULL, 0);
@@ -413,6 +477,7 @@ done:
 	{
 		if (!g_pEngine->IsRecording())
 		{
+			ButtonClick();
 			videoZone.isSelected = false;
 			stillZone.isSelected = true;
 			InvalidateRect(hwnd, NULL, 0);
@@ -422,39 +487,45 @@ done:
 
 	void recordAction(HWND hwnd)
 	{
-		if (videoZone.isSelected)
+		if (g_pEngine->IsPreviewing())
 		{
-			if (g_pEngine->IsRecording())
+			if (videoZone.isSelected)
 			{
-				OnStopRecord(hwnd);
-				recordZone.isSelected = false;
-				InvalidateRect(hwnd, NULL, 0);
-				RedrawWindow(hwnd, NULL, NULL, 0);
-				cameraCode = 1;
-				cameraFilename = VideoFileName;
-				Sleep(500);
-				PostQuitMessage(0);
+				if (g_pEngine->IsRecording())
+				{
+					ButtonClick();
+					OnStopRecord(hwnd);
+					recordZone.isSelected = false;
+					InvalidateRect(hwnd, NULL, 0);
+					RedrawWindow(hwnd, NULL, NULL, 0);
+					cameraCode = 1;
+					cameraFilename = VideoFileName;
+					Sleep(500);
+					PostQuitMessage(0);
+				}
+				else
+				{
+					ButtonClick();
+					recordZone.isSelected = true;
+					InvalidateRect(hwnd, NULL, 0);
+					OnStartRecord(hwnd);
+				}
 			}
 			else
 			{
+				ButtonClick();
 				recordZone.isSelected = true;
 				InvalidateRect(hwnd, NULL, 0);
-				OnStartRecord(hwnd);
+				RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
+				OnTakePhoto(hwnd);
+				recordZone.isSelected = false;
+				InvalidateRect(hwnd, NULL, 0);
+				RedrawWindow(hwnd, NULL, NULL, 0);
+				cameraCode = 2;
+				cameraFilename = PhotoFileName;
+				Sleep(500);
+				PostQuitMessage(0);
 			}
-		}
-		else
-		{
-			recordZone.isSelected = true;
-			InvalidateRect(hwnd, NULL, 0);
-			RedrawWindow(hwnd, NULL, NULL, RDW_ERASENOW | RDW_UPDATENOW);
-			OnTakePhoto(hwnd);
-			recordZone.isSelected = false;
-			InvalidateRect(hwnd, NULL, 0);
-			RedrawWindow(hwnd, NULL, NULL, 0);
-			cameraCode = 2;
-			cameraFilename = PhotoFileName;
-			Sleep(500);
-			PostQuitMessage(0);
 		}
 	}
 
@@ -486,6 +557,8 @@ done:
 				{
 					if (inZone(&closeZone, x, y))
 						captureClose(hwnd);
+					else if (inZone(&deviceZone, x, y))
+						captureDevice(hwnd);
 					else if (inZone(&videoZone, x, y))
 						captureVideo(hwnd);
 					else if (inZone(&stillZone, x, y))
@@ -506,12 +579,30 @@ done:
             {
                 if (g_pEngine)
                 {
+					GUID guidType;
+					IMFMediaEvent *pEvent = reinterpret_cast<IMFMediaEvent*>(wParam);
+					pEvent->GetExtendedType(&guidType);
+					/*
+					// For debugging events
+					if (guidType == MF_CAPTURE_ENGINE_INITIALIZED) ShowDebug(L"INITIALIZED");
+					else if (guidType == MF_CAPTURE_ENGINE_PREVIEW_STARTED) ShowDebug(L"PREVIEW_STARTED");
+					else if (guidType == MF_CAPTURE_ENGINE_PREVIEW_STOPPED) ShowDebug(L"PREVIEW_STOPPED");
+					else if (guidType == MF_CAPTURE_ENGINE_RECORD_STARTED) ShowDebug(L"RECORD_STARTED");
+					else if (guidType == MF_CAPTURE_ENGINE_RECORD_STOPPED) ShowDebug(L"RECORD_STOPPED");
+					else if (guidType == MF_CAPTURE_ENGINE_PHOTO_TAKEN) ShowDebug(L"PHOTO_TAKEN");
+					else if (guidType == MF_CAPTURE_ENGINE_ERROR) ShowDebug(L"ERROR");
+					*/
                     HRESULT hr = g_pEngine->OnCaptureEvent(wParam, lParam);
                     if (FAILED(hr))
                     {
                         ShowError(hwnd, g_pEngine->ErrorID(), hr);
                         InvalidateRect(hwnd, NULL, FALSE);
                     }
+
+					if (guidType == MF_CAPTURE_ENGINE_INITIALIZED)
+					{
+						g_pEngine->StartPreview();
+					}
                 }
 
                 UpdateUI(hwnd);
@@ -534,7 +625,7 @@ done:
                     DbgPrint(L"++WM_POWERBROADCAST++ Reinitializing capture engine.\n");
                     g_fSleepState = false;
                     g_pEngine->SleepState(g_fSleepState);
-                    g_pEngine->InitializeCaptureManager(hPreview, pSelectedDevice);
+                    g_pEngine->InitializeCaptureManager(hPreview, selectedDevice);
                     break;
                 case PBT_POWERSETTINGCHANGE:
                     {
@@ -564,7 +655,7 @@ done:
                                 DbgPrint(L"++WM_POWERBROADCAST++ Reinitializing capture engine.\n");
                                 g_fSleepState = false;
                                 g_pEngine->SleepState(g_fSleepState);
-                                g_pEngine->InitializeCaptureManager(hPreview, pSelectedDevice);
+                                g_pEngine->InitializeCaptureManager(hPreview, selectedDevice);
                             }
                         }
                     }
@@ -630,30 +721,36 @@ int Adjust(int center)
 
 void SetupZones(bool firstTime)
 {
-	closeZone.center = Adjust(-120);
+	closeZone.center = Adjust(-240);
 	closeZone.top = -4;
-	closeZone.default = L"C:\\images\\ath-tool-reject.png";
-	closeZone.selected = L"C:\\images\\ath-tool-reject_selected.png";
+	closeZone.default = L"images\\ath-tool-reject.png";
+	closeZone.selected = L"images\\ath-tool-reject_selected.png";
 	closeZone.isSelected = false;
+
+	deviceZone.center = Adjust(-120);
+	deviceZone.top = 0;
+	deviceZone.default = L"images\\ath-tool-capture.png";
+	deviceZone.selected = L"images\\ath-tool-capture_selected.png";
+	deviceZone.isSelected = false;
 
 	videoZone.center = Adjust(-20);
 	videoZone.top = 0;
-	videoZone.default = L"C:\\images\\ath-tool-video.png";
-	videoZone.selected = L"C:\\images\\ath-tool-video_selected.png";
+	videoZone.default = L"images\\ath-tool-video.png";
+	videoZone.selected = L"images\\ath-tool-video_selected.png";
 	if (firstTime)
 		videoZone.isSelected = true;
 
 	stillZone.center = Adjust(20);
 	stillZone.top = 0;
-	stillZone.default = L"C:\\images\\ath-tool-still.png";
-	stillZone.selected = L"C:\\images\\ath-tool-still_selected.png";
+	stillZone.default = L"images\\ath-tool-still.png";
+	stillZone.selected = L"images\\ath-tool-still_selected.png";
 	if (firstTime)
 		stillZone.isSelected = false;
 	
 	recordZone.center = Adjust(120);
 	recordZone.top = 0;
-	recordZone.default = L"C:\\images\\ath-tool-record.png";
-	recordZone.selected = L"C:\\images\\ath-tool-record_selected.png";
+	recordZone.default = L"images\\ath-tool-record.png";
+	recordZone.selected = L"images\\ath-tool-record_selected.png";
 	recordZone.isSelected = false;
 }
 
@@ -663,8 +760,6 @@ DWORD WINAPI CreateWindowThreaded( LPVOID lpParam )
 
 	if (cameraFullScreen)
 		MakeWindowFullscreen(hwnd);
-	
-	MainWindow::OnStartPreview(hwnd);
 
     ShowWindow(hwnd, SW_RESTORE);
 
@@ -682,6 +777,8 @@ DWORD WINAPI CreateWindowThreaded( LPVOID lpParam )
 void CameraInit()
 {
 	bool bCoInit = false, bMFStartup = false;
+
+	SetupApp();
 
 	GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -715,6 +812,8 @@ void CameraInit()
     }
 
     bMFStartup = true;
+	
+	InitDevices();
 
 done:
     if (FAILED(hr))

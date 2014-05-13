@@ -40,11 +40,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   {
     std::shared_ptr<Helper::Paths> paths = std::make_shared<Helper::Paths_Win>();
-	
-	// set current directory to executable dir
-	wchar_t path[MAX_PATH];
-	GetModuleFileNameW(NULL, path, MAX_PATH);
-	SetCurrentDirectory(path);
 
     // first init the logging system
     init_logging();

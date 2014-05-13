@@ -367,6 +367,7 @@ void SetupZones(bool firstTime)
 }
 
 bool cameraFullScreen = false;
+int cameraButtonSize = 60;
 
 DWORD WINAPI CreateWindowThreaded( LPVOID lpParam ) 
 {
@@ -406,7 +407,7 @@ void CameraInit()
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 }
 
-__declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, CameraDoneCallback callback)
+__declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	bool firstTime = ! cameraInited;
 
@@ -422,6 +423,7 @@ __declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, CameraDon
 	cameraFilename = L"";
 
 	cameraFullScreen = startfullscreen;
+	cameraButtonSize = buttonsize;
 
     HANDLE thread = CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
 	WaitForSingleObject(thread,INFINITE);
