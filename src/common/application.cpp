@@ -139,9 +139,9 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   
   _exposedJSObject = CefV8Value::CreateObject(NULL);
-  CefRefPtr<CefV8Value> evaluate = CefV8Value::CreateFunction("evaluate", this);
-  _exposedJSObject->SetValue("evaluate", evaluate, V8_PROPERTY_ATTRIBUTE_READONLY);
-  global->SetValue("_evaluateNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+  CefRefPtr<CefV8Value> eval = CefV8Value::CreateFunction("eval", this);
+  _exposedJSObject->SetValue("eval", eval, V8_PROPERTY_ATTRIBUTE_READONLY);
+  global->SetValue("_evalNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   
   _exposedJSObject = CefV8Value::CreateObject(NULL);
   CefRefPtr<CefV8Value> quit = CefV8Value::CreateFunction("quit", this);
@@ -189,7 +189,7 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
 	  CameraCapture(startfullscreen, buttonsize, &CameraDone);
 	  return true;
   }
-  if(name == "evaluate" && arguments.size() == 1)
+  if(name == "eval" && arguments.size() == 1)
   {
 	  std::string str = arguments[0]->GetStringValue().ToString();
 	  const char* c = str.c_str();
