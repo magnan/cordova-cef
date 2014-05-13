@@ -22,6 +22,8 @@
 #include "application.h"
 #include "client.h"
 
+#include "gambc.h"
+
 #include "Camera.h"
 
 bool startfullscreen = false;
@@ -109,6 +111,10 @@ void Application::OnContextInitialized()
   // init plugin manager (also create the plugins with onload=true)
   _pluginManager->init();
 
+  // setup gambit
+  setup_gambit();
+  test_gambit();
+
   // Create the browser asynchronously and load the startup url
   LOG_DEBUG(logger()) << "create browser with startup url: '" << _startupUrl << "'";
 
@@ -133,13 +139,20 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   
   _exposedJSObject = CefV8Value::CreateObject(NULL);
-  CefRefPtr<CefV8Value> function = CefV8Value::CreateFunction("quit", this);
-  _exposedJSObject->SetValue("quit", function, V8_PROPERTY_ATTRIBUTE_READONLY);
+  CefRefPtr<CefV8Value> evaluate = CefV8Value::CreateFunction("evaluate", this);
+  _exposedJSObject->SetValue("evaluate", evaluate, V8_PROPERTY_ATTRIBUTE_READONLY);
+  global->SetValue("_evaluateNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+  
+  _exposedJSObject = CefV8Value::CreateObject(NULL);
+  CefRefPtr<CefV8Value> quit = CefV8Value::CreateFunction("quit", this);
+  _exposedJSObject->SetValue("quit", quit, V8_PROPERTY_ATTRIBUTE_READONLY);
   global->SetValue("_quitNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
 }
 
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
 {
+	// cleanup gambit
+	cleanup_gambit();
 }
 
 CefRefPtr<CefV8Value> callback_func;
@@ -154,6 +167,9 @@ void CameraDone(int code, wchar_t* filename)
 	args.push_back(str);
 	callback_func->ExecuteFunctionWithContext(callback_context, NULL, args);
 }
+
+// quicky
+extern void eval_string (char*);
 
 bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception )
 {
@@ -171,6 +187,15 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
 	  callback_func = arguments[0];
       callback_context = CefV8Context::GetCurrentContext();
 	  CameraCapture(startfullscreen, buttonsize, &CameraDone);
+	  return true;
+  }
+  if(name == "evaluate" && arguments.size() == 1)
+  {
+	  std::string str = arguments[0]->GetStringValue().ToString();
+	  const char* c = str.c_str();
+	  // std::wstring widestr = std::wstring(str.begin(), str.end());
+	  // MessageBox(NULL, widestr.c_str(), NULL, 0);
+	  eval_string((char*) c);
 	  return true;
   }
   if(name == "quit" && arguments.size() == 0)

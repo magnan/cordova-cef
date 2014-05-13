@@ -76,7 +76,7 @@ X Button at left to cycle available cameras
 X Remember camera!?
   X In persistent settings!? Yes but not for now
     X Same for Video / Photo might as well!?
-- Sound on click!?
+X Sound on click!?
 - Finish all the buttons cleanly going selected, then back to not selected
 
 
