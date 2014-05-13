@@ -75,6 +75,8 @@ X Sound on click!?
 - Finish all the buttons cleanly going selected, then back to not selected
 - Gambit embedded
   - Hack something so we can return a string to javascript
+    - Fix hack with Marc's help
+    - Make sure hack doesn't leak memory
 
 
 QUESTIONS

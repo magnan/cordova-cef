@@ -1,9 +1,0 @@
-gsc -cc-options "-D___LIBRARY -D___SHARED" -c mylib.scm
-gsc -cc-options "-D___LIBRARY -D___SHARED" -link -o mylib_.c mylib.c
-
-gsc -c mylib.scm
-gsc -link -o mylib_.c mylib.c
-
-rename .c files to .cpp
-
-add #define ___LIBRARY in mylib.c and mylib_.c

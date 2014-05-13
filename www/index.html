@@ -34,7 +34,7 @@
           	alert("Photo: " + filename);
         }
 		function testEvaluate() {
-		  _evalNative.eval("(with-output-to-file \"c:/test/foo\" (lambda () (display 23)))");
+		  alert(_evalNative.eval("(begin (with-output-to-file \"c:/test/foo\" (lambda () (display 23))) 35)"));
 		}
         </script>
 		<style>

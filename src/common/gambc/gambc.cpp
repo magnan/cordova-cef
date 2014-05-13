@@ -35,13 +35,3 @@ void cleanup_gambit()
 {
 	___cleanup();
 }
-
-// quicky
-extern void eval_string (char*);
-// extern char* eval_string (char*);
-
-void test_gambit()
-{
-	eval_string("(+ 1 2)");
-	// char* res = eval_string("(+ 1 2)");
-}
