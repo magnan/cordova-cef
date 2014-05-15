@@ -53,6 +53,7 @@ X Does Francois want a way for user to cancel?
   ? Ask Francois how the application is quit
 X Handle clicking X while recording somehow
   ! If callback receives 0 (Canceled) it must delete file if present
+    - Because switching camera needs to delete the recording video, I might as well always delete myself and simplify the protocol
 X Check and clean the gitignore vs VS files
 X Scrollbars are red
   ? Can't reproduce problem
