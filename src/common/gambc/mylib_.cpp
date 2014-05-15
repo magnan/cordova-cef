@@ -3044,6 +3044,7 @@
 "denominator"
 "directory-files"
 "display"
+"display-exception"
 "dynamic-wind"
 "eq?"
 "equal?"
@@ -3399,6 +3400,7 @@
 "with-output-to-string"
 "write"
 "write-char"
+"write-exception-to-string"
 "write-subu8vector"
 "write-to-string"
 "write-u8"
@@ -4053,7 +4055,6 @@
 "display-continuation-environment"
 "display-dynamic-environment?"
 "display-environment-set!"
-"display-exception"
 "display-exception-in-context"
 "display-procedure-environment"
 "divide-by-zero-exception-arguments"
@@ -9025,10 +9026,16 @@ ___DEF_SUB_NSTR(___X6,16)
                ___NSTR8(109,45,115,116,114,105,110,103)
                ___NSTR0
 ___DEF_NEW_SYM_GLO_SUP(___S_mylib,___S_read_2d_from_2d_string,___X6,300746212,___G_read_2d_from_2d_string)
-___DEF_SUB_NSTR(___X7,15)
+___DEF_SUB_NSTR(___X7,25)
+               ___NSTR8(119,114,105,116,101,45,101,120)
+               ___NSTR8(99,101,112,116,105,111,110,45)
+               ___NSTR8(116,111,45,115,116,114,105,110)
+               ___NSTR1(103)
+___DEF_NEW_SYM_GLO_SUP(___S_read_2d_from_2d_string,___S_write_2d_exception_2d_to_2d_string,___X7,228635317,___G_write_2d_exception_2d_to_2d_string)
+___DEF_SUB_NSTR(___X8,15)
                ___NSTR8(119,114,105,116,101,45,116,111)
                ___NSTR7(45,115,116,114,105,110,103)
-___DEF_NEW_SYM_GLO_SUP(___S_read_2d_from_2d_string,___S_write_2d_to_2d_string,___X7,241997482,___G_write_2d_to_2d_string)
+___DEF_NEW_SYM_GLO_SUP(___S_write_2d_exception_2d_to_2d_string,___S_write_2d_to_2d_string,___X8,241997482,___G_write_2d_to_2d_string)
 ___END_NEW_SYM_GLO(___S_write_2d_to_2d_string,0)
 
 #endif

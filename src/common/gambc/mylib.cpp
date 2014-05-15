@@ -15,12 +15,14 @@
 "catch-all-errors"
 "eval-result-set!"
 "read-from-string"
+"write-exception-to-string"
 "write-to-string"
 )
 (
 "eval-string"
 )
 (
+"display-exception"
 "eval"
 "read"
 "with-exception-catcher"
@@ -38,10 +40,10 @@
 #define ___MH_PROC ___H__20_mylib
 #define ___SCRIPT_LINE 0
 #define ___SYMCOUNT 1
-#define ___GLOCOUNT 13
-#define ___SUPCOUNT 7
+#define ___GLOCOUNT 15
+#define ___SUPCOUNT 8
 #define ___SUBCOUNT 1
-#define ___LBLCOUNT 30
+#define ___LBLCOUNT 36
 #define ___MODDESCR ___REF_SUB(0)
 #include "gambit.h"
 
@@ -50,6 +52,7 @@ ___NEED_SYM(___S_mylib)
 ___NEED_GLO(___G__20_mylib)
 ___NEED_GLO(___G__20_mylib_23_0)
 ___NEED_GLO(___G_catch_2d_all_2d_errors)
+___NEED_GLO(___G_display_2d_exception)
 ___NEED_GLO(___G_eval)
 ___NEED_GLO(___G_eval_2d_result_2d_set_21_)
 ___NEED_GLO(___G_eval_2d_string)
@@ -59,6 +62,7 @@ ___NEED_GLO(___G_with_2d_exception_2d_catcher)
 ___NEED_GLO(___G_with_2d_input_2d_from_2d_string)
 ___NEED_GLO(___G_with_2d_output_2d_to_2d_string)
 ___NEED_GLO(___G_write)
+___NEED_GLO(___G_write_2d_exception_2d_to_2d_string)
 ___NEED_GLO(___G_write_2d_to_2d_string)
 
 ___BEGIN_SYM
@@ -74,13 +78,15 @@ ___DEF_GLO(2,"catch-all-errors")
 ___DEF_GLO(3,"eval-result-set!")
 ___DEF_GLO(4,"eval-string")
 ___DEF_GLO(5,"read-from-string")
-___DEF_GLO(6,"write-to-string")
-___DEF_GLO(7,"eval")
-___DEF_GLO(8,"read")
-___DEF_GLO(9,"with-exception-catcher")
-___DEF_GLO(10,"with-input-from-string")
-___DEF_GLO(11,"with-output-to-string")
-___DEF_GLO(12,"write")
+___DEF_GLO(6,"write-exception-to-string")
+___DEF_GLO(7,"write-to-string")
+___DEF_GLO(8,"display-exception")
+___DEF_GLO(9,"eval")
+___DEF_GLO(10,"read")
+___DEF_GLO(11,"with-exception-catcher")
+___DEF_GLO(12,"with-input-from-string")
+___DEF_GLO(13,"with-output-to-string")
+___DEF_GLO(14,"write")
 ___END_GLO
 
 #define ___GLO__20_mylib ___GLO(0,___G__20_mylib)
@@ -95,20 +101,24 @@ ___END_GLO
 #define ___PRM_eval_2d_string ___PRM(4,___G_eval_2d_string)
 #define ___GLO_read_2d_from_2d_string ___GLO(5,___G_read_2d_from_2d_string)
 #define ___PRM_read_2d_from_2d_string ___PRM(5,___G_read_2d_from_2d_string)
-#define ___GLO_write_2d_to_2d_string ___GLO(6,___G_write_2d_to_2d_string)
-#define ___PRM_write_2d_to_2d_string ___PRM(6,___G_write_2d_to_2d_string)
-#define ___GLO_eval ___GLO(7,___G_eval)
-#define ___PRM_eval ___PRM(7,___G_eval)
-#define ___GLO_read ___GLO(8,___G_read)
-#define ___PRM_read ___PRM(8,___G_read)
-#define ___GLO_with_2d_exception_2d_catcher ___GLO(9,___G_with_2d_exception_2d_catcher)
-#define ___PRM_with_2d_exception_2d_catcher ___PRM(9,___G_with_2d_exception_2d_catcher)
-#define ___GLO_with_2d_input_2d_from_2d_string ___GLO(10,___G_with_2d_input_2d_from_2d_string)
-#define ___PRM_with_2d_input_2d_from_2d_string ___PRM(10,___G_with_2d_input_2d_from_2d_string)
-#define ___GLO_with_2d_output_2d_to_2d_string ___GLO(11,___G_with_2d_output_2d_to_2d_string)
-#define ___PRM_with_2d_output_2d_to_2d_string ___PRM(11,___G_with_2d_output_2d_to_2d_string)
-#define ___GLO_write ___GLO(12,___G_write)
-#define ___PRM_write ___PRM(12,___G_write)
+#define ___GLO_write_2d_exception_2d_to_2d_string ___GLO(6,___G_write_2d_exception_2d_to_2d_string)
+#define ___PRM_write_2d_exception_2d_to_2d_string ___PRM(6,___G_write_2d_exception_2d_to_2d_string)
+#define ___GLO_write_2d_to_2d_string ___GLO(7,___G_write_2d_to_2d_string)
+#define ___PRM_write_2d_to_2d_string ___PRM(7,___G_write_2d_to_2d_string)
+#define ___GLO_display_2d_exception ___GLO(8,___G_display_2d_exception)
+#define ___PRM_display_2d_exception ___PRM(8,___G_display_2d_exception)
+#define ___GLO_eval ___GLO(9,___G_eval)
+#define ___PRM_eval ___PRM(9,___G_eval)
+#define ___GLO_read ___GLO(10,___G_read)
+#define ___PRM_read ___PRM(10,___G_read)
+#define ___GLO_with_2d_exception_2d_catcher ___GLO(11,___G_with_2d_exception_2d_catcher)
+#define ___PRM_with_2d_exception_2d_catcher ___PRM(11,___G_with_2d_exception_2d_catcher)
+#define ___GLO_with_2d_input_2d_from_2d_string ___GLO(12,___G_with_2d_input_2d_from_2d_string)
+#define ___PRM_with_2d_input_2d_from_2d_string ___PRM(12,___G_with_2d_input_2d_from_2d_string)
+#define ___GLO_with_2d_output_2d_to_2d_string ___GLO(13,___G_with_2d_output_2d_to_2d_string)
+#define ___PRM_with_2d_output_2d_to_2d_string ___PRM(13,___G_with_2d_output_2d_to_2d_string)
+#define ___GLO_write ___GLO(14,___G_write)
+#define ___PRM_write ___PRM(14,___G_write)
 
 ___DEF_SUB_VEC(___X0,5)
                ___VEC1(___REF_SYM(0,___S_mylib))
@@ -123,7 +133,7 @@ ___BEGIN_SUB
 ___END_SUB
 
 
-#define ___C_LBL_eval_string 20
+#define ___C_LBL_eval_string 26
 
 #include "mylib.h"
 char* eval_result = NULL;
@@ -166,6 +176,12 @@ ___DEF_M_HLBL(___L0_catch_2d_all_2d_errors)
 ___DEF_M_HLBL(___L1_catch_2d_all_2d_errors)
 ___DEF_M_HLBL(___L2_catch_2d_all_2d_errors)
 ___DEF_M_HLBL(___L3_catch_2d_all_2d_errors)
+___DEF_M_HLBL_INTRO
+___DEF_M_HLBL(___L0_write_2d_exception_2d_to_2d_string)
+___DEF_M_HLBL(___L1_write_2d_exception_2d_to_2d_string)
+___DEF_M_HLBL(___L2_write_2d_exception_2d_to_2d_string)
+___DEF_M_HLBL(___L3_write_2d_exception_2d_to_2d_string)
+___DEF_M_HLBL(___L4_write_2d_exception_2d_to_2d_string)
 ___DEF_M_HLBL_INTRO
 ___DEF_M_HLBL(___L0_write_2d_to_2d_string)
 ___DEF_M_HLBL(___L1_write_2d_to_2d_string)
@@ -211,10 +227,11 @@ ___DEF_SLBL(0,___L0__20_mylib)
    ___WRONG_NARGS(0,0,0,0)
 ___DEF_GLBL(___L__20_mylib)
    ___SET_GLO(2,___G_catch_2d_all_2d_errors,___PRC(6))
-   ___SET_GLO(6,___G_write_2d_to_2d_string,___PRC(11))
-   ___SET_GLO(5,___G_read_2d_from_2d_string,___PRC(17))
+   ___SET_GLO(6,___G_write_2d_exception_2d_to_2d_string,___PRC(11))
+   ___SET_GLO(7,___G_write_2d_to_2d_string,___PRC(17))
+   ___SET_GLO(5,___G_read_2d_from_2d_string,___PRC(23))
    ___SET_GLO(3,___G_eval_2d_result_2d_set_21_,___PRC(3))
-   ___SET_GLO(4,___G_eval_2d_string,___PRC(20))
+   ___SET_GLO(4,___G_eval_2d_string,___PRC(26))
    ___SET_R1(___VOID)
    ___JUMPPRM(___NOTHING,___R0)
 ___END_P_SW
@@ -305,20 +322,67 @@ ___DEF_GLBL(___L_catch_2d_all_2d_errors)
    ___POLL(1)
 ___DEF_SLBL(1,___L1_catch_2d_all_2d_errors)
    ___ADJFP(-1)
-   ___JUMPGLOSAFE(___SET_NARGS(2),9,___G_with_2d_exception_2d_catcher)
+   ___JUMPGLOSAFE(___SET_NARGS(2),11,___G_with_2d_exception_2d_catcher)
 ___DEF_SLBL(2,___L2_catch_2d_all_2d_errors)
    ___IF_NARGS_EQ(1,___NOTHING)
    ___WRONG_NARGS(2,1,0,0)
    ___POLL(3)
 ___DEF_SLBL(3,___L3_catch_2d_all_2d_errors)
-   ___JUMPGLOSAFE(___SET_NARGS(1),6,___G_write_2d_to_2d_string)
+   ___JUMPGLOSAFE(___SET_NARGS(1),6,___G_write_2d_exception_2d_to_2d_string)
+___END_P_SW
+___END_P_COD
+
+#undef ___PH_PROC
+#define ___PH_PROC ___H_write_2d_exception_2d_to_2d_string
+#undef ___PH_LBL0
+#define ___PH_LBL0 11
+#undef ___PD_ALL
+#define ___PD_ALL ___D_HEAP ___D_FP ___D_R1 ___D_R2 ___D_R4
+#undef ___PR_ALL
+#define ___PR_ALL ___R_HEAP ___R_FP ___R_R1 ___R_R2 ___R_R4
+#undef ___PW_ALL
+#define ___PW_ALL ___W_HEAP ___W_FP ___W_R1 ___W_R2 ___W_R4
+___BEGIN_P_COD
+___BEGIN_P_HLBL
+___DEF_P_HLBL_INTRO
+___DEF_P_HLBL(___L0_write_2d_exception_2d_to_2d_string)
+___DEF_P_HLBL(___L1_write_2d_exception_2d_to_2d_string)
+___DEF_P_HLBL(___L2_write_2d_exception_2d_to_2d_string)
+___DEF_P_HLBL(___L3_write_2d_exception_2d_to_2d_string)
+___DEF_P_HLBL(___L4_write_2d_exception_2d_to_2d_string)
+___END_P_HLBL
+___BEGIN_P_SW
+___DEF_SLBL(0,___L0_write_2d_exception_2d_to_2d_string)
+   ___IF_NARGS_EQ(1,___NOTHING)
+   ___WRONG_NARGS(0,1,0,0)
+___DEF_GLBL(___L_write_2d_exception_2d_to_2d_string)
+   ___SET_STK(1,___ALLOC_CLO(1))
+   ___BEGIN_SETUP_CLO(1,___STK(1),3)
+   ___ADD_CLO_ELEM(0,___R1)
+   ___END_SETUP_CLO(1)
+   ___SET_R2(___STK(1))
+   ___SET_R1(___NUL)
+   ___ADJFP(1)
+   ___CHECK_HEAP(1,4096)
+___DEF_SLBL(1,___L1_write_2d_exception_2d_to_2d_string)
+   ___POLL(2)
+___DEF_SLBL(2,___L2_write_2d_exception_2d_to_2d_string)
+   ___ADJFP(-1)
+   ___JUMPGLOSAFE(___SET_NARGS(2),13,___G_with_2d_output_2d_to_2d_string)
+___DEF_SLBL(3,___L3_write_2d_exception_2d_to_2d_string)
+   ___IF_NARGS_EQ(0,___NOTHING)
+   ___WRONG_NARGS(3,0,0,0)
+   ___SET_R1(___CLO(___R4,1))
+   ___POLL(4)
+___DEF_SLBL(4,___L4_write_2d_exception_2d_to_2d_string)
+   ___JUMPGLOSAFE(___SET_NARGS(1),8,___G_display_2d_exception)
 ___END_P_SW
 ___END_P_COD
 
 #undef ___PH_PROC
 #define ___PH_PROC ___H_write_2d_to_2d_string
 #undef ___PH_LBL0
-#define ___PH_LBL0 11
+#define ___PH_LBL0 17
 #undef ___PD_ALL
 #define ___PD_ALL ___D_HEAP ___D_FP ___D_R1 ___D_R2 ___D_R4
 #undef ___PR_ALL
@@ -351,21 +415,21 @@ ___DEF_SLBL(1,___L1_write_2d_to_2d_string)
    ___POLL(2)
 ___DEF_SLBL(2,___L2_write_2d_to_2d_string)
    ___ADJFP(-1)
-   ___JUMPGLOSAFE(___SET_NARGS(2),11,___G_with_2d_output_2d_to_2d_string)
+   ___JUMPGLOSAFE(___SET_NARGS(2),13,___G_with_2d_output_2d_to_2d_string)
 ___DEF_SLBL(3,___L3_write_2d_to_2d_string)
    ___IF_NARGS_EQ(0,___NOTHING)
    ___WRONG_NARGS(3,0,0,0)
    ___SET_R1(___CLO(___R4,1))
    ___POLL(4)
 ___DEF_SLBL(4,___L4_write_2d_to_2d_string)
-   ___JUMPGLOSAFE(___SET_NARGS(1),12,___G_write)
+   ___JUMPGLOSAFE(___SET_NARGS(1),14,___G_write)
 ___END_P_SW
 ___END_P_COD
 
 #undef ___PH_PROC
 #define ___PH_PROC ___H_read_2d_from_2d_string
 #undef ___PH_LBL0
-#define ___PH_LBL0 17
+#define ___PH_LBL0 23
 #undef ___PD_ALL
 #define ___PD_ALL ___D_FP ___D_R2 ___D_R4
 #undef ___PR_ALL
@@ -386,14 +450,14 @@ ___DEF_GLBL(___L_read_2d_from_2d_string)
    ___SET_R2(___GLO_read)
    ___POLL(1)
 ___DEF_SLBL(1,___L1_read_2d_from_2d_string)
-   ___JUMPGLOSAFE(___SET_NARGS(2),10,___G_with_2d_input_2d_from_2d_string)
+   ___JUMPGLOSAFE(___SET_NARGS(2),12,___G_with_2d_input_2d_from_2d_string)
 ___END_P_SW
 ___END_P_COD
 
 #undef ___PH_PROC
 #define ___PH_PROC ___H_eval_2d_string
 #undef ___PH_LBL0
-#define ___PH_LBL0 20
+#define ___PH_LBL0 26
 #undef ___PD_ALL
 #define ___PD_ALL ___D_HEAP ___D_FP ___D_R0 ___D_R1 ___D_R4
 #undef ___PR_ALL
@@ -450,13 +514,13 @@ ___DEF_SLBL(6,___L6_eval_2d_string)
    ___JUMPGLOSAFE(___SET_NARGS(1),5,___G_read_2d_from_2d_string)
 ___DEF_SLBL(7,___L7_eval_2d_string)
    ___SET_R0(___LBL(8))
-   ___JUMPGLOSAFE(___SET_NARGS(1),7,___G_eval)
+   ___JUMPGLOSAFE(___SET_NARGS(1),9,___G_eval)
 ___DEF_SLBL(8,___L8_eval_2d_string)
    ___SET_R0(___STK(-3))
    ___POLL(9)
 ___DEF_SLBL(9,___L9_eval_2d_string)
    ___ADJFP(-4)
-   ___JUMPGLOSAFE(___SET_NARGS(1),6,___G_write_2d_to_2d_string)
+   ___JUMPGLOSAFE(___SET_NARGS(1),7,___G_write_2d_to_2d_string)
 ___END_P_SW
 ___END_P_COD
 
@@ -474,6 +538,12 @@ ___BEGIN_LBL
 ,___DEF_LBL_RET(___H_catch_2d_all_2d_errors,___IFD(___RETI,1,4,0x3f0L))
 ,___DEF_LBL_PROC(___H_catch_2d_all_2d_errors,1,-1)
 ,___DEF_LBL_RET(___H_catch_2d_all_2d_errors,___IFD(___RETI,0,0,0x3fL))
+,___DEF_LBL_INTRO(___H_write_2d_exception_2d_to_2d_string,0,___REF_FAL,5,0)
+,___DEF_LBL_PROC(___H_write_2d_exception_2d_to_2d_string,1,-1)
+,___DEF_LBL_RET(___H_write_2d_exception_2d_to_2d_string,___IFD(___RETI,1,4,0x3f0L))
+,___DEF_LBL_RET(___H_write_2d_exception_2d_to_2d_string,___IFD(___RETI,1,4,0x3f0L))
+,___DEF_LBL_PROC(___H_write_2d_exception_2d_to_2d_string,0,1)
+,___DEF_LBL_RET(___H_write_2d_exception_2d_to_2d_string,___IFD(___RETI,0,0,0x3fL))
 ,___DEF_LBL_INTRO(___H_write_2d_to_2d_string,0,___REF_FAL,5,0)
 ,___DEF_LBL_PROC(___H_write_2d_to_2d_string,1,-1)
 ,___DEF_LBL_RET(___H_write_2d_to_2d_string,___IFD(___RETI,1,4,0x3f0L))

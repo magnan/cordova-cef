@@ -7,8 +7,13 @@ end-of-c-declare
 (define (catch-all-errors thunk)
   (with-exception-catcher
     (lambda (exc)
-      (write-to-string exc))
+      (write-exception-to-string exc))
     thunk))
+
+(define (write-exception-to-string exc)
+  (with-output-to-string
+    '()
+    (lambda () (display-exception exc))))
 
 (define (write-to-string obj)
   (with-output-to-string
