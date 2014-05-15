@@ -126,8 +126,16 @@ function showSplash()
 	g2.rect({rx: 15, ry: 15, width: "600px", height: "40px", x: tx , y: ty, fill: "white", "fill-opacity": 0.5});
 	g2.text({id: "statusText", x: TotalWidth/2, y: ty+30, "text-anchor": "middle", "font-family": "source_sans_proregular", "font-weight": "regular", "font-size": "30" });
 	Pablo("#statusText").content("Booting Sentio...")
-	//console.log(logoCode);
 
+	var syncIcon=Pablo(syncIconCode(TotalWidth-60,TotalHeight-60,1));
+	Pablo("#outerContent").append(syncIcon);
+
+	var logoutIcon=Pablo(logoutButton(TotalWidth-50,50,40,"yellow"));
+	var loi=Pablo("#outerContent").append(logoutIcon);
+
+	initDetectionMode();
+	
+	//console.log(logoCode);
 	firstSetup();
 }
 

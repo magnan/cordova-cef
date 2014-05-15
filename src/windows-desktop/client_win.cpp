@@ -55,11 +55,13 @@ bool Client_Win::OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& e
     {
       switch (event.windows_key_code)
       {
+	  
         case VK_F5:
         {
           browser->Reload();
           return true;
         }
+		case 0x52:
         case VK_F11:
         {
             toggleFullScreen(browser->GetHost()->GetWindowHandle(), true);

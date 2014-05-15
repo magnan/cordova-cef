@@ -76,11 +76,24 @@ function showNetworkFailure()
 //// sync setup
 ///
 
+function detectSyncSetup(callback)
+{
+	var db=getDatabase("_replicator"); 
+	db.query(function(doc) { emit(doc.target,doc._id); },
+				 	{ reduce: false, key: "cds_task" },
+					function(err,data)
+					{
+						if(err) callback(false);
+						else if(data.rows.length>0) callback(true);
+						else callback(false);
+					}); 
+}
+
 
 function setupSync()
 {
-	var db=getDatabase("_replicator"); 
-	db.get("b3fd63058b767896fe99b35a450008ff",{}, function(err,data) { if(err) setupSyncLoop(); else continueStep3(); });
+
+	detectSyncSetup(function(isok) { if(isok) continueStep3(); else setupSyncLoop(); });
 }
 
 
@@ -108,6 +121,9 @@ function setupSyncForDB(cID)
 
 	if(cID=="amt_tasks_groups") theID="b3fd63058b767896fe99b35a450008ff";
 	else theID=generateAthenaGUID();
+
+
+	console.log("THE ID:"+theID);
 
 	db.put(theID, { 
 					source: cID,
@@ -144,10 +160,10 @@ function processWOInstanceChange()
 
 function processTaskInstanceChange(obj) 
 { 
-	//console.log("CHANGE in Tasks instances:"); 
+	console.log("CHANGE in Tasks instances:"); 
 	startSyncAnimation();
 	db=getDatabase("cds_taskinstance");
-	//console.log(obj);
+	console.log(obj);
 	obj.changes.forEach( 	function(change)
 							{
 								db.get(obj.id,{ rev: change.rev },function(err,doc) { processTaskInstanceChangeDoc(doc); });
@@ -158,7 +174,7 @@ function processTaskInstanceChange(obj)
 
 function processTaskInstanceChangeDoc(doc)
 {
-	//console.log(doc);
+	console.log(doc);
 	//console.log("NBSTEPS:"+$(".pstep").size());
 	$(".pstep").each( function(i,pstep) 
 						{
@@ -205,7 +221,7 @@ function TrySync()
 
 function Sync()
 {
-/*
+
   var i=0;
   inSync=true;
   var iteration;
@@ -213,7 +229,7 @@ function Sync()
   startSyncAnimation();	
   iteration=function(i) {  return function() { if(i<databases.length) syncWithRemote(false,databases[i],iteration(i+1)); else initialSyncDone(); }; };
   iteration(0)();
-*/
+
 }
 
 function initialSyncDone()
@@ -231,7 +247,7 @@ function startSyncAnimation()
 {
 	var sunRays = Snap.select('text.syncwheel');
 	$(".syncwheel").attr('fill','rgb(20%,20%,20%)');
-	sunRays.stop().animate(
+	if(sunRays) sunRays.stop().animate(
 			{ transform: 'r360,20,3'}, // Basic rotation around a point. No frills.
 			10000, // Nice slow turning rays
 			function(){ 

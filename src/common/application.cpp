@@ -23,6 +23,7 @@
 #include "client.h"
 
 #include "gambc.h"
+#include "mylib.h"
 
 #include "Camera.h"
 
@@ -113,7 +114,6 @@ void Application::OnContextInitialized()
 
   // setup gambit
   setup_gambit();
-  test_gambit();
 
   // Create the browser asynchronously and load the startup url
   LOG_DEBUG(logger()) << "create browser with startup url: '" << _startupUrl << "'";
@@ -168,9 +168,6 @@ void CameraDone(int code, wchar_t* filename)
 	callback_func->ExecuteFunctionWithContext(callback_context, NULL, args);
 }
 
-// quicky
-extern void eval_string (char*);
-
 bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception )
 {
   if(name == "exec" && arguments.size() == 4)
@@ -193,9 +190,10 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
 	  std::string str = arguments[0]->GetStringValue().ToString();
 	  const char* c = str.c_str();
-	  // std::wstring widestr = std::wstring(str.begin(), str.end());
-	  // MessageBox(NULL, widestr.c_str(), NULL, 0);
 	  eval_string((char*) c);
+	  std::string res = eval_result;
+	  std::wstring reswide = std::wstring(res.begin(), res.end());
+	  retval = CefV8Value::CreateString(reswide.c_str());
 	  return true;
   }
   if(name == "quit" && arguments.size() == 0)
