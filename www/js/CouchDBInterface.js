@@ -38,7 +38,7 @@ function getDatabase(name)
 ///
 
 
-var databases  = ["amt_tasks_groups","amt_tasks_periodic_inspection","cds_activities_status","cds_attachment","cds_competencies_values","cds_employee","cds_employee_status_values","cds_file_type","cds_input_data","cds_input_data_instance","cds_input_type","cds_instances_types","cds_priority_values","cds_role","cds_site_location","cds_state_transitions","cds_task_instance","cds_tasktypes","cds_track","cds_workorder","cds_task"];
+var databases  = ["amt_tasks_groups","amt_tasks_periodic_inspection","cds_activities_status","cds_attachment","cds_competencies_values","cds_employee","cds_employee_status_values","cds_file_type","cds_input_data","cds_input_data_instance","cds_input_type","cds_instances_types","cds_priority_values","cds_role","cds_site_location","cds_state_transitions","cds_taskinstance","cds_tasktypes","cds_track","cds_workorder","cds_task"];
 
 ///
 //// Connectivity test
@@ -69,6 +69,115 @@ function showNetworkFailure()
 	if(inSync) stopSyncAnimation();
 	inSync=false;
 	$(".syncwheel").attr('fill','red');
+}
+
+
+///
+//// sync setup
+///
+
+
+function setupSync()
+{
+	var db=getDatabase("_replicator"); 
+	db.get("b3fd63058b767896fe99b35a450008ff",{}, function(err,data) { if(err) setupSyncLoop(); else continueStep3(); });
+}
+
+
+function setupSyncLoop()
+{
+	databases.forEach( setupSyncForDB );
+	setTimeout(continueStep3,5000);
+}
+
+
+function setupSyncForDB(cID)
+{
+	var db=getDatabase("_replicator"); 
+	var theID;
+	getDatabase(cID);
+
+	
+	theID=generateAthenaGUID();
+	db.post({ 
+					target: cID,
+					source: "http://admin:Tanger132@54.83.18.50:8000/"+cID,
+					continuous: true,
+					"create-target": true
+				  });	
+
+	if(cID=="amt_tasks_groups") theID="b3fd63058b767896fe99b35a450008ff";
+	else theID=generateAthenaGUID();
+
+	db.put(theID, { 
+					source: cID,
+					target: "http://admin:Tanger132@54.83.18.50:8000/"+cID,
+					continuous: true,
+					"create-target": true
+				  }); 
+
+	
+}
+
+
+
+
+///
+//// subscriptions to db changes
+///
+
+
+function registerDBChangeListeners()
+{
+	getDatabase("cds_taskinstance").changes({ since: 'latest', live: true }).on('change', processTaskInstanceChange); 
+	getDatabase("cds_workorder").changes({ since: 'latest', live: true }).on('change', processWOInstanceChange);
+}
+
+
+function processWOInstanceChange()
+{
+	startSyncAnimation();
+	doRefreshWOPage();
+}
+
+
+
+function processTaskInstanceChange(obj) 
+{ 
+	//console.log("CHANGE in Tasks instances:"); 
+	startSyncAnimation();
+	db=getDatabase("cds_taskinstance");
+	//console.log(obj);
+	obj.changes.forEach( 	function(change)
+							{
+								db.get(obj.id,{ rev: change.rev },function(err,doc) { processTaskInstanceChangeDoc(doc); });
+							} );
+
+}
+
+
+function processTaskInstanceChangeDoc(doc)
+{
+	//console.log(doc);
+	//console.log("NBSTEPS:"+$(".pstep").size());
+	$(".pstep").each( function(i,pstep) 
+						{
+							//console.log(pstep);
+							var name=$(pstep).attr('name');
+							if(name.indexOf("'"+doc.CDS_TaskInstance_WorkOrder[0]+"','"+doc.CDS_TaskInstance_Task[0]+"'")>=0 ) $(".taskbox",pstep).attr('fill', resolveTaskFill(doc));
+						});
+}
+
+
+function resolveTaskFill(doc)
+{
+	switch(doc.CDS_TaskInstance_Status[0])
+	{
+		case "Status_Active": return "url(#gWait)";  break;
+		case "Status_Visited": return "url(#gActive)"; break;
+		case "Status_Completed": return "url(#gDone)"; break;
+		case "Status_Cancelled": return "url(#gCancelled)"; break;
+	}
 }
 
 
@@ -111,8 +220,8 @@ function initialSyncDone()
 {
   stopSyncAnimation();	
   inSync=false;
-  console.log("Initial sync done.");
-  console.log("Turning autosync on");
+  //console.log("Initial sync done.");
+  //console.log("Turning autosync on");
   //continuousSync();
 }
 
@@ -158,7 +267,7 @@ function syncWithRemote(cont,cID,donecallback)
 {
 	var remoteCouch='http://54.83.18.50:8000/'+ cID;
 	//var remoteCouch='http://10.0.1.3:5984/'+ cID;
-	console.log("Sync "+ cID+ " to master");
+	//console.log("Sync "+ cID+ " to master");
 	
 	var db = getDatabase(cID);
 	var options;
@@ -176,11 +285,11 @@ function syncWithRemote(cont,cID,donecallback)
 function  syncToCompleted(cont,cID,donecallback)
 {
   return function(e,res) {
-    console.log(e);
-    console.log("Sync to master completed for: "+cID);
+    //console.log(e);
+    //console.log("Sync to master completed for: "+cID);
     var remoteCouch='http://54.83.18.50:8000/'+ cID;
 	//var remoteCouch='http://127.0.0.1:5984/'+ cID;
-    console.log("Sync "+ cID+ " from master");
+    //console.log("Sync "+ cID+ " from master");
     var db = getDatabase(cID);
 	$(".cup").attr('visibility','hidden');
 	$(".cdown").attr('visibility','visible');
@@ -255,12 +364,13 @@ function dd(data)
 }
 
 
-//getFirstLabel('ID8141631513273_1397959533692503',function(data) { console.log(data); });
-// getFirstLabel('ID6082274876723_1394857391435627',function(data){ console.log(data); });
-//getPropertyValues('ID9293854962400_1397959533693803','CDS_Task_ParentTask',dd)
+
+///
+//// getFirstType
+///
 
 
-function getPropertyValues(iID,pID,callback)
+function getFirstType(iID,callback)
 {
 	var typesDB= getDatabase('cds_instances_types');
 	typesDB.query( 	function(doc) { if(doc.iID && doc.cID) emit(doc.iID,doc.cID); },
@@ -268,12 +378,22 @@ function getPropertyValues(iID,pID,callback)
 					function(err,data)
 					{
 						if(err) callback([]);
-						else if(data.rows.length>0) getPropertyValuesInClass(data.rows[0].value,iID,pID,callback);
+						else if(data.rows.length>0) callback(data.rows[0].value);
 						else callback([]);
 					} );
 }
 
-// getPropertyValues("ID1837647907950_1394857390308203","CDS_hasRole",function(data) { console.log(data); });
+
+//getFirstLabel('ID8141631513273_1397959533692503',function(data) { console.log(data); });
+//getFirstLabel('ID6082274876723_1394857391435627',function(data){ console.log(data); });
+//getPropertyValues('ID9293854962400_1397959533693803','CDS_Task_ParentTask',dd)
+
+
+function getPropertyValues(iID,pID,callback)
+{
+	getFirstType(iID,function(cID) { getPropertyValuesInClass(cID,iID,pID,callback); });
+}
+
 
 function getPropertyValuesInClass(cID,iID,pID,callback)
 {
@@ -358,6 +478,106 @@ function retrictionsValues(restrictions)
 }
 
 
+///
+//// updateDocument
+///
+
+
+function updateDocument(dbname,docID,props,cb)
+{
+	//console.log("Updating doc id:"+ docID);
+	var db = getDatabase(dbname);
+	db.get(docID,	function(err,lastVersion)
+					{
+						//console.log(lastVersion);
+						var newProps=lastVersion;
+						for (property in props) 
+						{
+							newProps[property]= props[property];
+						} 
+						//console.log("Will try to put :");
+						//console.log(newProps);
+						//console.log(cb);
+						db.put(newProps,docID,lastVersion._rev, function(err,data) { /* console.log("put returned"); console.log(data); console.log("will call scheme"); */cb(data); });
+					});
+}
+
+///
+//// getInstanceDocID
+///
+
+
+function getInstanceDocID(cID,iID,cb)
+{
+	var db = getDatabase(cID);
+	db.query( 	function(doc) { emit(doc.iID,doc._id); },
+				{ reduce: false, key: iID },
+				function(err,data)
+				{
+					
+					if(err || !data || !data.rows || data.rows.length==0) cb(false);
+					else cb(data.rows[0].value);
+				} );
+}
+
+// getInstanceDocID("cds_taskinstance","ID5946800031636_1398737953175213",function(docID) { console.log(docID); });
+
+///
+//// updateInstanceProperties
+///
+
+
+function updateInstanceProperties(iID, props, cb)
+{
+	//console.log("Enter updateInstanceProperties");
+	getFirstType(iID,	function(cID)
+						{
+							//console.log("In updateInstanceProperties tpye:"+ cID);
+							getInstanceDocID(cID,iID, 	function(docID)
+														{
+															updateDocument(cID,docID,props,cb);
+														});
+						});
+}
+
+// updateInstanceProperties("ID5553557733905_1398737953496351",{ "CDS_TaskInstance_Status": ["Status_Visited"] }, function(data) { console.log(data); });
+
+
+///
+//// newInstance
+///
+
+
+function newInstance(cID,props,cb)
+{
+	var db = getDatabase(cID);
+	var newProps=props;	
+
+	var guid=generateAthenaGUID();
+	newProps['iID']=guid;
+	//console.log("will ccreate main")
+	//console.log(newProps);
+	db.put(newProps,guid,function(err,data) 
+						 {
+							//console.log("main created"); 
+							var typesDB=getDatabase("cds_instances_types");
+							typesDB.put({ "cID": cID, "iID": guid }, generateAthenaGUID() ,function (err,data) { console.log("put type"); cb(guid); });
+						});
+}
+
+
+function generateAthenaGUID()
+{
+	var fpart=Math.floor((Math.random() * 10000000000000) + 1);
+	var spartdate=new Date();
+	var spart= spartdate.getTime();
+	return "ID"+fpart+"_"+spart;
+	
+}
+
+// newInstance("test", { "toto": 1, "titi": 2 }, function(data) { console.log(data); });
+// updateInstanceProperties("ID3377012421843_1399777039404",{ "CDS_TaskInstance_Status": ["Status_Visited"] }, function(data) { console.log(data); });
+
 
 ///
 //// tests
@@ -396,4 +616,11 @@ function benchmarkHTTP()
 
 }
 
+
+
+function convertDate(sdate)
+{
+	var d=Date.parse(sdate);
+	return d+'';
+}
 

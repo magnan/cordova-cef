@@ -105,9 +105,9 @@ function fregionProcessor(htmlCode,elementTagname)
 {
 	return 	function(i,e)
 			{
-				console.log('fregionProcessor');
-				console.log(i);
-				console.log(e);
+				//console.log('fregionProcessor');
+				//console.log(i);
+				//console.log(e);
 				var callbacks=eval($(e).attr('name'));
 				
 				$(e).bind('click',function (evt) { evt.preventDefault(); })					
@@ -197,7 +197,7 @@ var cDragRID;
 
 function rDragStart()
 {
-	console.log("start drag");
+	//console.log("start drag");
 	
 	stepsRects=[];
 	$(".pStep").each( function (i,e) { stepsRects.push( { rect: e.getBoundingClientRect(), id: $(e).attr('id') }); });
@@ -214,7 +214,7 @@ function rDragStart()
 
 function rDragEnd()
 {
-	console.log("end drag");
+	//console.log("end drag");
 	Pablo("#drag").remove();
 	if(cPSTEP)
 	{	
@@ -454,38 +454,27 @@ function unhighlight(e)
 }
 
 ///
-//// toggleActivityState
+//// changeTaskState
 ///
 
-
-function toggleActivityState(activityID,parentID,workOrderID)
-{
-	$.get("toggleActivityState?activityID="+ activityID +"&workOrderID="+ workOrderID);
-}
-
-
-function changeTaskState(activityID, workOrderID,newState)
-{
-	$.get("changeActivityState?activityID="+ activityID +"&workOrderID="+ workOrderID+"&newState="+newState);
-}
 
 
 function completeTask(woID,actID)
 {
 	showPushEffect(true);
-	changeTaskState(actID, woID,"Status_Completed");	
+	changeTaskState(woID, actID, "Status_Completed");	
 }
 
 function cancelTask(woID,actID)
 {
 	showPushEffect(true);	
-	changeTaskState(actID, woID,"Status_Cancelled");
+	changeTaskState(woID, actID, "Status_Cancelled");
 }
 
 function undoTask(woID,actID)
 {
 	showPushEffect(true);
-	changeTaskState(actID, woID,"Status_Visited");
+	changeTaskState(woID, actID, "Status_Visited");
 }
 
 
@@ -543,12 +532,12 @@ function refreshNavigStack(woID)
 
 	if(activeWO==woID) 
 	{
-		console.log("Refreshing stack");
+		//console.log("Refreshing stack");
 		refreshNavigStackRec(woID,navigationStack.length-1,true);
 	}
 	else
 	{
-		console.log("Refreshing progress");
+		//console.log("Refreshing progress");
 		refreshWOProgress(woID);
 	}
 
@@ -606,15 +595,14 @@ function replaceGraphSVG(activityID,callback)
 var WONeedsRefresh=false;
 
 
-function refreshWOProgress(woID)
+function refreshWOProgress()
 {
-	if(getLastPageID()=="home")	doRefreshWOPage();
-	else WONeedsRefresh=true;
+	doRefreshWOPage();
 }
 
 function doRefreshWOPage()
 {
-	myGet("getWorkOrders",replaceGraphSVG("home"));
+	refreshWorkOrders();
 }
 
 
@@ -769,6 +757,9 @@ function fadeOut(id,callback)
 }
 
 
+
+
+
 ///
 //// Tests de grow
 ///
@@ -863,13 +854,13 @@ function showTaskPopover(tID,woID,actID,update,t)
 								var domelement=Pablo("#"+tID).children(".taskBox").first()[0];
 								var bbox=getElementBBox(domelement);
 							    nextBBOX=bbox;
-								console.log("nextbpx:"+ nextBBOX);
+								//console.log("nextbpx:"+ nextBBOX);
 								popOverCodeContent(woID, actID, function(data) 
 																{ 
-																	console.log("**** popOverCodeContent returned");
-																	console.log(data);
+																	//console.log("**** popOverCodeContent returned");
+																	//console.log(data);
 																	var svg=Pablo("#main").append(data);
-																	console.log(data);
+																	//console.log(data);
 																	
 																	
 																	runAdjustmentsScripts();
@@ -877,9 +868,9 @@ function showTaskPopover(tID,woID,actID,update,t)
 																	var contentDataNode= contentData.get(0);
 																	var h=Math.floor(Pablo(contentDataNode).bbox().height+2);
 																	var w=Math.floor(Pablo(contentDataNode).bbox().width);
-																	console.log(w+" "+h+" "+bbox+" "+$("body").scrollTop());
+																	//console.log(w+" "+h+" "+bbox+" "+$("body").scrollTop());
 																	var pdata=popOverCode(w,h,nextBBOX,$("body").scrollTop());
-																	console.log("**********PDATA"+pdata);
+																	//console.log("**********PDATA"+pdata);
 																	if(update) destroyPopover(true);
 																	insertPopover(Pablo(pdata));
 																	cpTID=tID;
@@ -1409,14 +1400,11 @@ function toggleCheckBox(cbID,formID,inputID)
 //// showCompetencyWarning
 ///
 
-function showDelayedCompetencyWarning(aID,woID)
-{
-	setTimeout(function() { showCompetencyWarning(aID,woID); },800);
-}
 
-function showCompetencyWarning(aID,woID)
+function _showModal(data,id)
 {
-	myGet("competencyWarningModal?aID="+ aID +"&woID="+ woID,function(data) { showModal(data,"competencyWModal"); startWarningSignAnim(); });
+	showModal(data,"competencyWModal"); 
+	startWarningSignAnim(); 
 }
 
 
@@ -1523,14 +1511,14 @@ function hideAssignationOverlay()
 
 function computePiePath(cx,cy,cp)
 {
-	console.log(cx);
-	console.log(cp);
+	//console.log("pie path");
+	//console.log(cp);
 	aex=cx+cx*Math.sin(Math.PI*2*cp/100);
-	aey=cx+cx*Math.cos(Math.PI*2*cp/100);
+	aey=cx-cx*Math.cos(Math.PI*2*cp/100);
 	var large;
 	if(cp>50) large=1;
 	else large=0;
-	console.log("M"+cx+","+cy+" L"+cx+",0 A"+cx+","+cx+" 0 1,1 "+aex+","+aey+" z");
+	//console.log("M"+cx+","+cy+" L"+cx+",0 A"+cx+","+cx+" 0 1,1 "+aex+","+aey+" z");
 	return "M"+cx+","+cy+" L"+cx+",0 A"+cx+","+cx+" 0 "+large+",1 "+aex+","+aey+" z";
 }
 
