@@ -304,35 +304,21 @@ namespace MainWindow
 		
         wchar_t filename[MAX_PATH];
 
-        // Get the path to the Documents folder.
-        IShellItem *psi = NULL;
-        PWSTR pszFolderPath = NULL;
-
-        HRESULT hr = SHCreateItemInKnownFolder(FOLDERID_Documents, 0, NULL, IID_PPV_ARGS(&psi));
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszFolderPath);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
+		HRESULT hr;
 
         // Construct a file name based on the current time.
 
         SYSTEMTIME time;
         GetLocalTime(&time);
 
-        hr = StringCchPrintf(filename, MAX_PATH, L"MyVideo%04u_%02u%02u_%02u%02u%02u.mp4",
+        hr = StringCchPrintf(filename, MAX_PATH, L"www\\media\\MyVideo%04u_%02u%02u_%02u%02u%02u.mp4",
             time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
             goto done;
         }
 
-        LPTSTR path = PathCombine(VideoFileName, pszFolderPath, filename);
+        LPTSTR path = PathCombine(VideoFileName, appdir, filename);
         if (path == NULL)
         {
             hr = E_FAIL;
@@ -367,35 +353,21 @@ done:
     {
         wchar_t filename[MAX_PATH];
 
-        // Get the path to the Documents folder.
-        IShellItem *psi = NULL;
-        PWSTR pszFolderPath = NULL;
-
-        HRESULT hr = SHCreateItemInKnownFolder(FOLDERID_Documents, 0, NULL, IID_PPV_ARGS(&psi));
-        if (FAILED(hr))
-        {
-            goto done;
-        }
-
-        hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &pszFolderPath);
-        if (FAILED(hr))
-        {
-            goto done;
-        }
+		HRESULT hr;
 
         // Construct a file name based on the current time.
 
         SYSTEMTIME time;
         GetLocalTime(&time);
 
-        hr = StringCchPrintf(filename, MAX_PATH, L"MyPhoto%04u_%02u%02u_%02u%02u%02u.jpg",
+        hr = StringCchPrintf(filename, MAX_PATH, L"www\\media\\MyPhoto%04u_%02u%02u_%02u%02u%02u.jpg",
             time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
             goto done;
         }
 
-        LPTSTR path = PathCombine(PhotoFileName, pszFolderPath, filename);
+        LPTSTR path = PathCombine(PhotoFileName, appdir , filename);
         if (path == NULL)
         {
             hr = E_FAIL;
@@ -409,8 +381,7 @@ done:
         }
 
 done:
-        SafeRelease(&psi);
-        CoTaskMemFree(pszFolderPath);
+      
 
         if (FAILED(hr))
         {

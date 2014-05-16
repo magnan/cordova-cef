@@ -218,6 +218,20 @@ function continueStep4()
 
 
 ///
+//// handleMediaJS
+///
+
+
+function handleMediaJS(status,path)
+{
+	console.log("handle media js");
+	console.log(path);
+	console.log(path.split("\\").join("/"));
+	handleMedia(status,path.split("\\").join("/"));
+}
+
+
+///
 //// main
 ///
 
