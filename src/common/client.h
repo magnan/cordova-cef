@@ -90,10 +90,11 @@ public:
   virtual CefRefPtr<CefBrowser> GetBrowser() const {return _browser;}
 
   virtual void toggleFullScreen(CefWindowHandle window, bool visible) = 0;
+  void showDevTools(CefRefPtr<CefBrowser> browser);
 
 protected:
 
-  virtual void showDevTools(CefRefPtr<CefBrowser> browser);
+  
   void runJavaScriptOnUI_Thread(CefRefPtr<CefBrowser> browser, const std::string js);
 
   // List of open DevTools URLs if not using an external browser window.

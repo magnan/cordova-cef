@@ -9,8 +9,6 @@
 ///
 
 
-var TotalWidth=1280;
-var TotalHeight=800;
 var Mobile=false;
 
 ///
@@ -105,6 +103,7 @@ var TotalHeight=screen.height;
 
 function showSplash()
 {
+	testConnectivity();
 	TotalWidth=screen.width;
 	TotalHeight=screen.height;
 	Pablo("#main").attr('width', TotalWidth);
@@ -184,7 +183,7 @@ var syncEndInterval;
 function continueStep3()
 {
 	setBootMessage("Syncing data...");
-	syncEndInterval=setInterval(checkSyncEnd,1000);
+	setTimeout(function() {	syncEndInterval=setInterval(checkSyncEnd,3000); },1000);
 }
 
 
@@ -200,7 +199,15 @@ function checkProcessCompletion(processes)
 	
 	for(var i=0;i<processes.length;i++)
 	{
-		if(processes[i].progress!=0 &&  processes[i].progress!=100) done=false;
+		var p=processes[i];
+		var t=p.target;
+
+		//console.log(p);
+		if(syncCompleteIndicatorDatabases.indexOf(t)>0) 
+		{
+			//console.log("done with ?"+p.progress+" "+NetworkAvailabilityStatus);
+			if(p.progress<100 && NetworkAvailabilityStatus) done=false;
+		}
 	}
 	if(done)
 	{
@@ -224,11 +231,27 @@ function continueStep4()
 
 function handleMediaJS(status,path)
 {
+	alert("sent:"+path);
 	console.log("handle media js");
+    console.log(status);
 	console.log(path);
 	console.log(path.split("\\").join("/"));
+	alert("converted:"+path.split("\\").join("/"));
 	handleMedia(status,path.split("\\").join("/"));
 }
+
+///
+//// devtools
+///
+
+
+function startDebugger()
+{
+	_devtoolsNative.devtools();
+}
+
+
+
 
 
 ///

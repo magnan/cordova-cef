@@ -1,3 +1,23 @@
+///
+//// path utilities
+///
+
+
+function extractFilename(path)
+{
+	var splitted= path.split("/");
+	return splitted[splitted.length-1];
+}
+
+
+function extractExtension(filename)
+{
+	var splitted=filename.split(".");
+	return "."+splitted[splitted.length-1];
+}
+
+
+
 
 ///
 //// runAdjustmentsScripts
@@ -61,14 +81,31 @@ function processBubbles()
 {
 	$(".bubbleL").each( function(i,e) 
 						{
-							var tnode=$(e).children().get(1);
-							var theight=$(tnode).height();
+							var tnode=$("text",$(e)).get(0);
+							var inode=$(e).children("image").get(0);
+							
+							var theight;
+							
+							if(tnode) theight=$(tnode).height();
+							else theight=120;
 							Pablo(e).children("path").attr('d',"M365,"+ theight +"c0,5.5-4.5,10-10,10H11c-5.5,0-10-4.5-10-10V19.681h-27.936L1,0h354c5.5,0,10,4.5,10,10V"+ theight +"z");
 						});
 	$(".bubbleR").each( function(i,e) 
 						{
-							var tnode=$(e).children().get(1);
-							var theight=$(tnode).height();
+							var tnode=$("text",$(e)).get(0);
+							var inode=$(e).children("image").get(0);
+							
+							var theight;
+							
+							if(tnode) theight=$(tnode).height();
+							else theight=120;
+
+							/* 
+							if(inode) {
+												var r= inode.getBoundingClientRect();
+												inode=r.width;
+											}
+							else theight=160; */
 							Pablo(e).children("path").attr('d',"M-26.936,"+ theight +"c0,5.5,4.5,10,10,10h344c5.5,0,10-4.5,10-10V19.681H365L337.064,0h-354c-5.5,0-10,4.5-10,10V"+ theight +"z");
 						});
 	
@@ -114,6 +151,7 @@ function fregionProcessor(htmlCode,elementTagname)
 				var content=$(e).children("text").text();
 				var bbox=getElementBBox($(e).children("rect").get(0));
 				var nnode=$("body").append(htmlCode); 
+				$("body").children().last().children("input").addClass($(e).attr('class'));
 				$("body").children().last().css('position','absolute'); 
 				$("body").children().last().css('left',(bbox[0]-2)+'px');
 				$("body").children().last().css('top',(bbox[1])+'px');
@@ -331,6 +369,7 @@ function bringModal(aIID,infotype)
 
 function showModal(data,id)
 {
+	scrollToTop();
 	Pablo("#main").append(Pablo(data));
 	runAdjustmentsScripts();
 	fadeIn(id);
@@ -1266,7 +1305,7 @@ function saveDrawing(attID)
 //// fields edition
 ///
 
-
+/*
 function fieldEdited(formID,inputID,data)
 {
 	$("#SIContentInput").val(data);
@@ -1276,7 +1315,7 @@ function fieldEdited(formID,inputID,data)
 									success: function(res) {  }
 								 });
 }
-
+*/
 
 ///
 //// computeLayout
@@ -1465,8 +1504,20 @@ function stopWarningSignAnim()
 
 function addNoteToTask(aIID,note)
 {
-	//cpInfo={ tID: tID, woID: woID, actID: actID};
-	$.get("addNoteToTask?aID="+ cpInfo.actID+"&woID="+cpInfo.woID+"&note="+note,function () { });
+	doAddNoteToTask(cpInfo.actID,cpInfo.woID,note);
+}
+
+
+
+///
+//// addPhotoToTask
+///
+
+
+function confirmImage(photo)
+{
+	closeModal('mediaModal');
+	doAddPhotoToTask(cpInfo.actID,cpInfo.woID,photo);
 }
 
 ///
@@ -1523,5 +1574,106 @@ function computePiePath(cx,cy,cp)
 }
 
 
+///
+//// activity indicator
+///
 
 
+var animationInterval;
+
+
+function showActivityIndicator()
+{	
+	scrollToTop();
+	var s = Snap("#main"); 
+	var g = s.g().attr({"id": "actInd", class: "actInd"});
+
+
+	var cx = TotalWidth/2;
+	var cy = TotalHeight/2;
+	
+	var circle1 = g.circle(cx, cy, 80).attr({
+	    fill: "none",
+	    stroke: 'red',
+	    opacity: 0.5,
+	    strokeWidth: 30,
+	    strokeDasharray: "10 10",
+	    strokeDashoffset: 50
+	});
+	
+	var circle2 = g.circle(cx, cy, 50).attr({
+	    fill: "none",
+	    opacity: 0.5,
+	    stroke: 'orange',
+	    strokeWidth: 30,
+	    strokeDasharray: "10 10",
+	    strokeDashoffset: 50
+	});
+	
+	
+	var animationLambda = function()
+								{
+	
+									Snap.animate(0,400, function( value ){ 	circle1.attr({ 'strokeDashoffset': value }) },5000 );
+									Snap.animate(400,0, function( value ){	circle2.attr({ 'strokeDashoffset': value })	},5000 );
+	
+								};
+
+	animationLambda();
+	animationInterval=setInterval(animationLambda,5000);
+
+}
+
+
+function hideActivityIndicator()
+{
+	clearInterval(animationInterval);
+	$(".actInd").remove();
+}
+
+
+///
+//// scroll back to top
+///
+
+
+function scrollToTop()
+{
+	$("body").scrollTop(0);
+}
+
+
+///
+//// getImageScaledRect
+///
+
+
+
+function getImageScaledRect(url,cb)
+{
+  var imgHeight;
+  var imgWidth;
+
+  var findHHandWW = function () 
+					{ 
+						var rect=new Object();
+						var w=this.width;
+						var h=this.height;
+						var mw=TotalWidth-20;
+						var mh=TotalHeight-20-100;
+						var scaleFactor=Math.min(mw/w,mh/h);
+						var nw=w* scaleFactor;
+						var nh=h* scaleFactor;
+						rect.x=Math.floor(10+(mw-nw)/2);
+						rect.y=Math.floor(10+(mh-nh)/2);
+						rect.width=Math.floor(nw);
+						rect.height=Math.floor(nh);
+						cb(rect); 
+						return true; 
+					};
+ 
+  var myImage = new Image();
+  myImage.name = url;
+  myImage.onload = findHHandWW;
+  myImage.src = url;
+}

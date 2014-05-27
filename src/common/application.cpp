@@ -147,6 +147,11 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   CefRefPtr<CefV8Value> quit = CefV8Value::CreateFunction("quit", this);
   _exposedJSObject->SetValue("quit", quit, V8_PROPERTY_ATTRIBUTE_READONLY);
   global->SetValue("_quitNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+
+  _exposedJSObject = CefV8Value::CreateObject(NULL);
+  CefRefPtr<CefV8Value> devtools = CefV8Value::CreateFunction("devtools", this);
+  _exposedJSObject->SetValue("devtools", devtools, V8_PROPERTY_ATTRIBUTE_READONLY);
+  global->SetValue("_devtoolsNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
 }
 
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
@@ -200,6 +205,12 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
       CefRefPtr<CefBrowser> browser = _client->GetBrowser();
 	  browser->GetHost()->CloseBrowser(false);
+	  return true;
+  }
+  if (name == "devtools" && arguments.size() == 0)
+  {
+	  CefRefPtr<CefBrowser> browser = _client->GetBrowser();
+	  _client->showDevTools(browser);
 	  return true;
   }
   return false;

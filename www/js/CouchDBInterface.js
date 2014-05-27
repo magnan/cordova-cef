@@ -1,7 +1,7 @@
 /////////////////////////////////
 ///  Experimentation notes:
 ///
-///  
+///  PouchDB: (IndexedDB mode)
 ///  Replication problems when using password protected API?
 ///  Cannot start many sync requests in parallel... freezes the browser
 ///  Must be controlled using promises.
@@ -38,7 +38,12 @@ function getDatabase(name)
 ///
 
 
-var databases  = ["amt_tasks_groups","amt_tasks_periodic_inspection","cds_activities_status","cds_attachment","cds_competencies_values","cds_employee","cds_employee_status_values","cds_file_type","cds_input_data","cds_input_data_instance","cds_input_type","cds_instances_types","cds_priority_values","cds_role","cds_site_location","cds_state_transitions","cds_taskinstance","cds_tasktypes","cds_track","cds_workorder","cds_task"];
+var databases  = ["amt_tasks_groups","amt_tasks_periodic_inspection","cds_activities_status","cds_attachment","cds_competencies_values","cds_employee","cds_employee_status_values","cds_file_type","cds_input_data","cds_input_data_instance","cds_input_type","cds_instances_types","cds_form_instances","cds_forms","cds_priority_values","cds_role","cds_site_location","cds_state_transitions","cds_taskinstance","cds_tasktypes","cds_track","cds_workorder","cds_wocategories" ,"cds_task","cds_note"];
+
+
+
+var syncCompleteIndicatorDatabases = ["cds_activities_status","cds_attachment","cds_competencies_values","cds_employee","cds_employee_status_values","cds_file_type","cds_input_data","cds_input_type","cds_instances_types","cds_priority_values","cds_role","cds_site_location","cds_state_transitions","cds_taskinstance","cds_tasktypes","cds_track","cds_workorder","cds_task"];
+
 
 ///
 //// Connectivity test
@@ -59,13 +64,19 @@ function testConnectivity()
 }
 
 
+var NetworkAvailabilityStatus;
+
+
 function showNetworkNormal()
 {
+	NetworkAvailabilityStatus=true;
 	if(!inSync)	$(".syncwheel").attr('fill',"rgb(80%,80%,80%)");
+
 }
 
 function showNetworkFailure()
 {
+	NetworkAvailabilityStatus=true;
 	if(inSync) stopSyncAnimation();
 	inSync=false;
 	$(".syncwheel").attr('fill','red');
@@ -100,8 +111,16 @@ function setupSync()
 function setupSyncLoop()
 {
 	databases.forEach( setupSyncForDB );
-	setTimeout(continueStep3,5000);
+	setTimeout(finalizeSetupSync,5000);
 }
+
+
+function finalizeSetupSync()
+{
+	createViews();
+	setTimeout(continueStep3,2000);
+}
+
 
 
 function setupSyncForDB(cID)
@@ -110,14 +129,15 @@ function setupSyncForDB(cID)
 	var theID;
 	getDatabase(cID);
 
+
 	
 	theID=generateAthenaGUID();
-	db.post({ 
+	db.put({ 
 					target: cID,
 					source: "http://admin:Tanger132@54.83.18.50:8000/"+cID,
 					continuous: true,
 					"create-target": true
-				  });	
+				  },theID);	
 
 	if(cID=="amt_tasks_groups") theID="b3fd63058b767896fe99b35a450008ff";
 	else theID=generateAthenaGUID();
@@ -125,12 +145,12 @@ function setupSyncForDB(cID)
 
 	console.log("THE ID:"+theID);
 
-	db.put(theID, { 
+	db.put({ 
 					source: cID,
 					target: "http://admin:Tanger132@54.83.18.50:8000/"+cID,
 					continuous: true,
 					"create-target": true
-				  }); 
+				  },theID); 
 
 	
 }
@@ -380,6 +400,55 @@ function dd(data)
 }
 
 
+///
+//// createViews
+///
+
+
+function createViews()
+{
+	databases.forEach( createViewsForDB );
+}
+
+
+function createViewsForDB(cID)
+{
+	var theDB= getDatabase(cID);
+	var theTypesFCT;
+
+	if(cID=='cds_instances_types') theTypesFCT="function(doc)\n{\n\tif(doc.iID && doc.cID) emit(doc.iID,doc.cID);\n}"; 
+	else theTypesFCT="function(doc) {}";
+
+
+	var doCreateView=function(res) { 
+										var myIndex = {
+  												_id: '_design/sentio',
+  												views: {
+															'labels': { map: function(doc) { emit(doc.iID,doc.labels); }.toString() },
+															'instances': { map: function(doc) { if(!doc.isArchive || doc.isArchive.length==0) emit(doc.iID,null); }.toString() },
+    														'instancesProps': { map: function (doc) { for(var pname in doc) emit([doc.iID,pname],doc[pname]); }.toString() },
+															'instancesTypes': { map: theTypesFCT },
+															'instancesRevisions': { map: function(doc) { emit(doc.iID, doc._rev); }}
+														}
+												};
+
+										theDB.put(myIndex);
+									};
+
+    doCreateView();
+  
+  /*
+	$.ajax({
+    url: 'localhost:5984/'+cID+'/_design/sentio',
+    type: 'DELETE',
+    success: doCreateView,
+	error: doCreateView
+ 
+	});
+
+*/
+}
+
 
 ///
 //// getFirstType
@@ -389,7 +458,7 @@ function dd(data)
 function getFirstType(iID,callback)
 {
 	var typesDB= getDatabase('cds_instances_types');
-	typesDB.query( 	function(doc) { if(doc.iID && doc.cID) emit(doc.iID,doc.cID); },
+	typesDB.query( 	'sentio/instancesTypes',
 				 	{ reduce: false, key: iID },
 					function(err,data)
 					{
@@ -398,6 +467,68 @@ function getFirstType(iID,callback)
 						else callback([]);
 					} );
 }
+
+
+///
+//// getAttachments
+///
+
+
+function getAttachments(iID,callback)
+{
+	getFirstType(iID,function(cID) { getAttachmentsWithType(cID,iID,callback); });
+}
+
+
+function getAttachmentsWithType(cID,iID,callback)
+{
+	var db=getDatabase(cID);
+	getInstanceDocID(	cID,
+						iID,
+						function(docID)
+						{
+							console.log("docID="+docID);
+							db.get(docID,{attachments: true},	function(err,doc) 
+																{ 
+																	console.log(doc);
+																	var firstProp=false;
+																	for(prop in doc._attachments)
+																	{
+																		if(!firstProp) firstProp=prop;
+																	}
+																	if(doc && doc._attachments) callback("http://localhost:5984/"+ cID +"/"+docID+"/"+firstProp);
+																	else callback(false);
+																} );
+
+
+							
+						});
+}
+
+
+//getAttachments("ID8605999954361_1401057856319361",function(data) { console.log(data); })
+
+///
+//// getInstanceRevision
+///
+
+
+
+function getInstanceRevision(iID,callback)
+{
+	getFirstType(iID, function(cID) {
+										var theDB=getDatabase(cID);
+										db.query(	'sentio/instancesRevisions',
+													{ reduce: false, key: iID},
+													function(err,data)
+													{
+														if(err || !data || !data.rows || data.rows.length==0) callback([]);
+														else callback(data.rows[0].value);
+													} );
+									});
+}
+
+
 
 
 //getFirstLabel('ID8141631513273_1397959533692503',function(data) { console.log(data); });
@@ -415,8 +546,8 @@ function getPropertyValuesInClass(cID,iID,pID,callback)
 {
 	var db = getDatabase(cID);
 	eval("var mapCode=function(doc) { if(doc[\""+pID+"\"]) emit(doc.iID,doc[\""+pID+"\"]); }");
-	db.query( 	mapCode,
-				{ reduce: false, key: iID },
+	db.query( 	'sentio/instancesProps',
+				{ reduce: false, key: [iID,pID] },
 				function(err,data)
 				{
 					//console.log(data);
@@ -439,7 +570,7 @@ function getPropertyValueByIndex(iID,pID,i,callback)
 function getInstances(cID,callback)
 {
 	var db = getDatabase(cID);
-	db.query( 	function(doc) { if(!doc.isArchive || doc.isArchive.length==0) emit(doc.iID,null); },
+	db.query( 	'sentio/instances',
 				{ reduce: false },
 				function(err,data) 
 				{

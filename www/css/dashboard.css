@@ -38,7 +38,7 @@
 	left: 170px;*/
 	width: 420px;
 	height: 24px;
-	font-size: 1.5em;
+	/*font-size: 1.5em;*/
 	padding: 5px; 
 	background-color: transparent;
 	border-width: 0px;
@@ -47,9 +47,5 @@
 }
 
 
-.biggerFont
-{
-	font-size: 1.5em;
-}
-
+.smallFont{	font-size: 1em;}.mediumFont{	font-size: 1.5em;}.biggerFont{	font-size: 2em;}
 
