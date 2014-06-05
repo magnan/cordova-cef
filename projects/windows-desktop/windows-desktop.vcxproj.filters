@@ -90,6 +90,9 @@
     <ClCompile Include="..\..\src\common\gambc\mylib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\common\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\windows-desktop\application_win.h">
@@ -165,6 +168,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\common\gambc\gambc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

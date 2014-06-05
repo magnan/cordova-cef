@@ -21,6 +21,7 @@
 
 #include "application.h"
 #include "client.h"
+#include "utils.h"
 
 #include "gambc.h"
 #include "mylib.h"
@@ -38,6 +39,7 @@ Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths
     _mainWindow(NULL),
     _pluginManager(new PluginManager(this))
 {
+  // printlog("*****");
   // load and parse config and fill configured plugins
   boost::filesystem::path config_path = _paths->getApplicationDir();
   config_path /= "config.xml";

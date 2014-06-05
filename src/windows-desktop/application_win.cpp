@@ -19,13 +19,18 @@
  *
 */
 
+
 #include "application_win.h"
 #include "client_win.h"
 #include "osrwindow_win.h"
 #include "resource.h"
+#include "utils.h"
 
 #include <Shlwapi.h>
 #include <algorithm>
+
+
+HWND focusQuickHack = NULL;
 
 Application_Win::Application_Win(std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application_Win),
@@ -86,6 +91,7 @@ Application_Win::Application_Win(std::shared_ptr<Helper::Paths> paths)
                               neededRect.right - neededRect.left,
                               neededRect.bottom - neededRect.top, 
                               NULL, NULL, GetModuleHandle(NULL), NULL);
+  // printlog("MAINWINDOW %d", _mainWindow);
 
   SetWindowLongPtrW(_mainWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
  
@@ -119,6 +125,9 @@ LRESULT CALLBACK Application_Win::WndProc( HWND hWnd, UINT message, WPARAM wPara
 
     case WM_KILLFOCUS:
     {
+	  if (!focusQuickHack)
+	      // focus is the correct one at this point
+		  focusQuickHack = GetFocus();
       appwindow->handlePause();
       break;
     }
@@ -130,7 +139,8 @@ LRESULT CALLBACK Application_Win::WndProc( HWND hWnd, UINT message, WPARAM wPara
         // Pass focus to the browser window
         CefWindowHandle hwnd = appwindow->_client->GetBrowser()->GetHost()->GetWindowHandle();
         if (hwnd)
-          PostMessage(hwnd, WM_SETFOCUS, wParam, NULL);
+			SetFocus(focusQuickHack);
+          // PostMessage(hwnd, WM_SETFOCUS, wParam, NULL);
       }
       return 0;
 
