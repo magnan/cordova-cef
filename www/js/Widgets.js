@@ -29,7 +29,7 @@ function showBadLoginInfo()
 	//animateFill(node2,"red",function() { animateFill(node2,"gray"); });
 	
 	var	node4=$("#logo-athena").get(0);
-	Snap(node4).animate( { transform: "r"+45+",80,75" }, 300,updown );
+	Snap(node4).animate( { transform: "r"+45+",80,75" }, 2000,quicksine );
 	clearField("username");
 	clearField("password");
 }
@@ -37,7 +37,13 @@ function showBadLoginInfo()
 
 function animateFill(node,color,callback)
 {
-	Snap(node).animate( { fill: color }, 300, updown, callback);
+	Snap(node).animate( { fill: color }, 3000, updown, callback);
+}
+
+
+function quicksine(n)
+{
+	return 0.25*Math.sin(12*Math.PI*n);
 }
 
 

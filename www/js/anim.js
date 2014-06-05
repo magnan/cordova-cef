@@ -120,6 +120,7 @@ function processBubbles()
 
 function processFTextFields()
 {
+	destroyFTFields();
 	$(".ftext").each(fregionProcessor('<div class="FTFwrapper"><input class="childFTField" type="text" style="display: none"></input></div>','input'));
 	$(".fpass").each(fregionProcessor('<div class="FTFwrapper"><input class="childFTField" type="password" style="display: none"></input></div>','input'));
 }
@@ -167,6 +168,13 @@ function fregionProcessor(htmlCode,elementTagname)
 																			var data=$(e.target).val();
   																			callbacks.onblur(data); 
 																		 });
+				$("body").children().last().children().first().on('focus',function (e) 
+																		 {
+																			$("body").animate({ scrollTop: (bbox[1]-150)+"px" });
+																			//$("body").scrollTop(bbox[1]-150);
+																		 });
+
+
 				$("body").children().last().children(elementTagname).val(content);
 				$("body").children().last().children(elementTagname).css('width',bbox[2]+'px');
 				$("body").children().last().children(elementTagname).css('height',bbox[3]+'px');
@@ -739,8 +747,8 @@ function adjustSVGWindow()
   //console.log("Computed width:"+w);
   $("#main").attr('width',w);
   Pablo(".background").attr('height',blockH);
-  $("#main").attr('height',Math.max(TotalHeight,blockH+112));
-  $("#body").attr('height',Math.max(TotalHeight,blockH+112));
+  $("#main").attr('height',Math.max(TotalHeight,blockH+1112));
+  $("#body").attr('height',Math.max(TotalHeight,blockH+1112));
 }
 
 
@@ -920,7 +928,7 @@ function showTaskPopover(tID,woID,actID,update,t)
 																	Pablo("#popOverContent").children().attr('visibility','visible');
 																	adjustSVGWindow(); adjustSVGWindow(); adjustSVGWindow(); adjustSVGWindow();
 																	afterFormPushed();
-																	if(t) $(".childFTField").each(function (i,e) { $(e).val(t) });																	
+																	if(t) $(".childFTField").each(function (i,e) { alert(e); $(e).val(t) });																	
 
 
 																});
@@ -1010,6 +1018,30 @@ function insertPopover(data)
 {
 	Pablo("#main").append(data);
 }
+
+
+///
+//// showPopoverOnElement(id,code)
+///
+
+
+function showPopoverOnElement(id,contentCode,w,h)
+{
+	var domelement=Pablo("#"+id).first()[0];
+	var element=$(domelement);
+	var eloffset=element.offset();
+	var bbox=[];
+	bbox.push(eloffset.left);
+	bbox.push(eloffset.top);
+	bbox.push(Pablo("#"+ id).children("rect").attr('width'));
+	bbox.push(Pablo("#"+ id).children("rect").attr('height'));
+	var pdata=popOverCode(w,h, bbox,$("body").scrollTop());	
+	insertPopover(Pablo(pdata));
+	Pablo(contentCode).appendTo(Pablo("#popOverContent"));
+}
+
+
+
 
 ///
 //// menus
@@ -1280,7 +1312,8 @@ function showImageEditMenu(attID)
 	{
 		var domelement=Pablo("#imageEditButton").children("rect")[0];
 		var bbox=getElementBBox(domelement);
-		myGet("getImageEditPopoverCode?attID="+attID+"&bbox="+bbox.toString(),insertPopover);
+		console.log(bbox);
+		insertPopover(getImageEditPopoverCode(attID,bbox,cColor));
 		EditMenuVisible=true;
 	}
 }
@@ -1522,16 +1555,25 @@ function confirmImage(photo)
 	doAddPhotoToTask(cpInfo.actID,cpInfo.woID,photo);
 }
 
+
+function discardImage(photo)
+{
+	closeModal('mediaModal');
+	deleteMediaFile(photo);
+}
+
+
+
 ///
 //// deleteNote(noteID,aIID)
 ///
 
-
+/*
 function deleteNote(noteID,aIID)
 {
 	$.get("deleteNote?aIID="+aIID+"&noteID="+noteID,function () { });
 }
-
+*/
 
 
 ///

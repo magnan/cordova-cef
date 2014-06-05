@@ -232,6 +232,7 @@ function continueStep4()
 
 function handleMediaJS(status,path)
 {
+	//alert(status+" "+path);
 	//alert("sent:"+path);
 	console.log("handle media js");
     console.log(status);

@@ -202,6 +202,7 @@ function processTaskInstanceChangeDoc(doc)
 
 function changeTaskStatus(taskID, woID, status)
 {
+	console.log("changeTaskStatus "+taskID+" "+woID);
 	changeTaskStatusFillColor(taskID,woID,resolveTaskFill(status));
 }
 
@@ -225,6 +226,7 @@ function resolveTaskFill(status)
 	switch(status)
 	{
 		case "Status_Active": return "url(#gWait)";  break;
+		case "Status_Assigned": return "url(#gWait)";  break;
 		case "Status_Visited": return "url(#gActive)"; break;
 		case "Status_Completed": return "url(#gDone)"; break;
 		case "Status_Cancelled": return "url(#gCancelled)"; break;
@@ -397,24 +399,41 @@ function allTrue(arr)
 
 function getFirstLabel(iID,callback)
 {
-	var locale=CurrentLocale();
-	getPropertyValues(	iID,
-						'labels',
-						function(data)
+
+	getFirstType(iID, 	function(cID)
 						{
-							//console.log("In getFirstLabel");
-							//console.log(iID);
-							//console.log(data);
-							var res=false;
-							for(var i=0;i<data.length;i++)
-							{
-								if(data[i][0]==locale) res=data[i][1];
-							}
-							if(res) callback(res);
-							else if(data.length>0) callback(data[0][1]);
-							else callback("  ");
+							getFirstLabelInClass(cID,iID,callback);
 						});
 }
+
+
+
+function getFirstLabelInClass(cID,iID,callback)
+{
+	//console.log("entering getfirstlabelinclass:"+cID);
+	var locale=CurrentLocale();
+	var db = getDatabase(cID);
+	//eval("var mapCode=function(doc) { if(doc[\""+pID+"\"]) emit(doc.iID,doc[\""+pID+"\"]); }");
+	db.query( 	'sentio/labels',
+				{ reduce: false, key: iID },
+				function(err,data)
+				{
+					//console.log(data);
+					
+					if(err || !data || !data.rows  || data.rows.length==0 || !data.rows[0].value) callback(" ");
+					var thelabels=data.rows[0].value;
+					var res=false;	
+					
+					for(var i=0;i<thelabels.length;i++)
+					{
+						if(thelabels[i][0]==locale) res=thelabels[i][1];
+					}
+					if(res) callback(res);
+					else if(thelabels.length>0) callback(thelabels[0][1]);
+					else callback(" ");
+				} );
+}
+
 
 
 function dd(data)
@@ -499,7 +518,8 @@ function getFirstType(iID,callback)
 
 function getAttachments(iID,callback)
 {
-	getFirstType(iID,function(cID) { getAttachmentsWithType(cID,iID,callback); });
+	//getFirstType(iID,function(cID) { getAttachmentsWithType(cID,iID,callback); });
+	getPropertyValues(iID,"CDS_Attachment_URL",callback);
 }
 
 
@@ -519,7 +539,11 @@ function getAttachmentsWithType(cID,iID,callback)
 																	{
 																		if(!firstProp) firstProp=prop;
 																	}
-																	if(doc && doc._attachments) callback("http://localhost:5984/"+ cID +"/"+docID+"/"+firstProp);
+																	if(doc && doc._attachments) 
+																	{
+																		console.log("url:"+"http://localhost:5984/"+ cID +"/"+docID+"/"+firstProp);
+																		callback("http://localhost:5984/"+ cID +"/"+docID+"/"+firstProp);
+																	}
 																	else callback(false);
 																} );
 
@@ -559,7 +583,7 @@ function getPropertyValues(iID,pID,callback)
 function getPropertyValuesInClass(cID,iID,pID,callback)
 {
 	var db = getDatabase(cID);
-	eval("var mapCode=function(doc) { if(doc[\""+pID+"\"]) emit(doc.iID,doc[\""+pID+"\"]); }");
+	//eval("var mapCode=function(doc) { if(doc[\""+pID+"\"]) emit(doc.iID,doc[\""+pID+"\"]); }");
 	db.query( 	'sentio/instancesProps',
 				{ reduce: false, key: [iID,pID] },
 				function(err,data)
@@ -570,7 +594,7 @@ function getPropertyValuesInClass(cID,iID,pID,callback)
 				} );
 }
 
-//getPropertyValues('cds_activity_instance','ID8196957516370_1391750037588536','CDS_Activity_Instance_status',myfct);
+//getPropertyValuesInClass('cds_task','ID2927803648755_1401057640383276','labels',function(data) { console.log(data); });
 
 function getPropertyValueByIndex(iID,pID,i,callback)
 {

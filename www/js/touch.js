@@ -26,13 +26,13 @@ var voidTouchAction;
 function initDetectionMode()
 {
 	var bodyel=$("body").get(0);
-	/* Hammer(bodyel).on("swipeleft", function(event) 
+	 Hammer(bodyel).on("swipeleft", function(event) 
 									{ 
 										var px=event.gesture.startEvent.center.pageX;
 										var py=event.gesture.startEvent.center.pageY;
 										processSwipeLeftFrom(px,py);
 										//processTouchStart(event.srcEvent); var osd=$(initialNodeTouched).attr('vonswipeleft'); 
-       								});  */
+       								});  
 
 /*
 	Hammer(bodyel).on("touch", function(event) 
@@ -140,7 +140,8 @@ function processTouchStart(px,py)
 
 function processSwipeLeftFrom(px,py)
 {
-	classTouchTest(px,py,".swipe-left",function(node) { eval($(node).attr('vonswipeleft')); });
+	alert("swipeleft");
+	//classTouchTest(px,py,".swipe-left",function(node) { eval($(node).attr('vonswipeleft')); });
 }
 
 
@@ -196,6 +197,8 @@ function processTouchEnd(e)
 			console.log("touch end "+ dx +" "+dy+ " "+ initialNodeTouched);
 
 			var osd=$(initialNodeTouched).attr('vonswipeleft');
+
+			console.log("swiped:"+osd+" node:"+ initialNodeTouched);
 			if(osd) eval(osd);
 		}
 
