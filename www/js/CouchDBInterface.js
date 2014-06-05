@@ -76,7 +76,7 @@ function showNetworkNormal()
 
 function showNetworkFailure()
 {
-	NetworkAvailabilityStatus=true;
+	NetworkAvailabilityStatus=false;
 	if(inSync) stopSyncAnimation();
 	inSync=false;
 	$(".syncwheel").attr('fill','red');
@@ -174,6 +174,7 @@ function processWOInstanceChange()
 {
 	startSyncAnimation();
 	doRefreshWOPage();
+	stopSyncAnimation();
 }
 
 
@@ -186,7 +187,7 @@ function processTaskInstanceChange(obj)
 	console.log(obj);
 	obj.changes.forEach( 	function(change)
 							{
-								db.get(obj.id,{ rev: change.rev },function(err,doc) { processTaskInstanceChangeDoc(doc); });
+								db.get(obj.id,{ rev: change.rev },function(err,doc) { processTaskInstanceChangeDoc(doc);	stopSyncAnimation(); });
 							} );
 
 }
@@ -194,20 +195,34 @@ function processTaskInstanceChange(obj)
 
 function processTaskInstanceChangeDoc(doc)
 {
-	console.log(doc);
-	//console.log("NBSTEPS:"+$(".pstep").size());
+	//console.log(doc);
+	changeTaskStatusFillColor(doc.CDS_TaskInstance_Task[0],doc.CDS_TaskInstance_WorkOrder[0],resolveTaskFill(doc.CDS_TaskInstance_Status[0]));
+}
+
+
+function changeTaskStatus(taskID, woID, status)
+{
+	changeTaskStatusFillColor(taskID,woID,resolveTaskFill(status));
+}
+
+
+
+
+function changeTaskStatusFillColor(taskID,woID,newColor)
+{
 	$(".pstep").each( function(i,pstep) 
 						{
 							//console.log(pstep);
 							var name=$(pstep).attr('name');
-							if(name.indexOf("'"+doc.CDS_TaskInstance_WorkOrder[0]+"','"+doc.CDS_TaskInstance_Task[0]+"'")>=0 ) $(".taskbox",pstep).attr('fill', resolveTaskFill(doc));
+							if(name.indexOf("'"+woID+"','"+taskID+"'")>=0 ) $(".taskbox",pstep).attr('fill', newColor);
 						});
 }
 
 
-function resolveTaskFill(doc)
+
+function resolveTaskFill(status)
 {
-	switch(doc.CDS_TaskInstance_Status[0])
+	switch(status)
 	{
 		case "Status_Active": return "url(#gWait)";  break;
 		case "Status_Visited": return "url(#gActive)"; break;
@@ -215,6 +230,9 @@ function resolveTaskFill(doc)
 		case "Status_Cancelled": return "url(#gCancelled)"; break;
 	}
 }
+
+
+
 
 
 ///
@@ -256,32 +274,37 @@ function initialSyncDone()
 {
   stopSyncAnimation();	
   inSync=false;
-  //console.log("Initial sync done.");
+  alert("Initial sync done.");
   //console.log("Turning autosync on");
   //continuousSync();
 }
 
 var shouldContinue=false;
+var showingSyncAnim=false;
 
 function startSyncAnimation()
 {
-	var sunRays = Snap.select('text.syncwheel');
-	$(".syncwheel").attr('fill','rgb(20%,20%,20%)');
-	if(sunRays) sunRays.stop().animate(
-			{ transform: 'r360,20,3'}, // Basic rotation around a point. No frills.
-			10000, // Nice slow turning rays
-			function(){ 
-				sunRays.attr({ transform: 'rotate(0 20 3)'}); // Reset the position of the rays.
-				if(shouldContinue) startSyncAnimation(); // Repeat this animation so it appears infinite.
-				else $(".syncwheel").attr('fill','rgb(80%,80%,80%)');
-			}
+	if(!showingSyncAnim && NetworkAvailabilityStatus)
+	{
+		showingSyncAnim=true;
+		var sunRays = Snap.select('text.syncwheel');
+		$(".syncwheel").attr('fill','rgb(20%,20%,20%)');
+		if(sunRays) sunRays.stop().animate(
+					{ transform: 'r360,20,3'}, // Basic rotation around a point. No frills.
+					10000, // Nice slow turning rays
+					function(){ 
+								sunRays.attr({ transform: 'rotate(0 20 3)'}); // Reset the position of the rays.
+								if(shouldContinue) startSyncAnimation(); // Repeat this animation so it appears infinite.
+								else $(".syncwheel").attr('fill','rgb(80%,80%,80%)');
+							}
 		);
-	
+	}
 }
 
 function stopSyncAnimation()
 {
 	shouldContinue=false;	
+	showingSyncAnim=false;
 	$(".cup").attr('visibility','hidden');
 	$(".cdown").attr('visibility','hidden');
 }
@@ -428,7 +451,7 @@ function createViewsForDB(cID)
 															'instances': { map: function(doc) { if(!doc.isArchive || doc.isArchive.length==0) emit(doc.iID,null); }.toString() },
     														'instancesProps': { map: function (doc) { for(var pname in doc) emit([doc.iID,pname],doc[pname]); }.toString() },
 															'instancesTypes': { map: theTypesFCT },
-															'instancesRevisions': { map: function(doc) { emit(doc.iID, doc._rev); }}
+															'instancesRevisions': { map: function(doc) { emit(doc.iID, doc._rev); }.toString() }
 														}
 												};
 
@@ -516,16 +539,7 @@ function getAttachmentsWithType(cID,iID,callback)
 
 function getInstanceRevision(iID,callback)
 {
-	getFirstType(iID, function(cID) {
-										var theDB=getDatabase(cID);
-										db.query(	'sentio/instancesRevisions',
-													{ reduce: false, key: iID},
-													function(err,data)
-													{
-														if(err || !data || !data.rows || data.rows.length==0) callback([]);
-														else callback(data.rows[0].value);
-													} );
-									});
+	getPropertyValues(iID,"_rev",callback)
 }
 
 
@@ -697,20 +711,29 @@ function updateInstanceProperties(iID, props, cb)
 
 function newInstance(cID,props,cb)
 {
+	var guid=generateAthenaGUID();
+	newInstanceWithID(cID, guid,props,cb)
+}
+
+
+function newInstanceWithID(cID,iID,props,cb)
+{
 	var db = getDatabase(cID);
 	var newProps=props;	
 
-	var guid=generateAthenaGUID();
-	newProps['iID']=guid;
+	
+	newProps['iID']= iID;
 	//console.log("will ccreate main")
 	//console.log(newProps);
-	db.put(newProps,guid,function(err,data) 
+	db.put(newProps,iID,function(err,data) 
 						 {
 							//console.log("main created"); 
 							var typesDB=getDatabase("cds_instances_types");
-							typesDB.put({ "cID": cID, "iID": guid }, generateAthenaGUID() ,function (err,data) { console.log("put type"); cb(guid); });
+							typesDB.put({ "cID": cID, "iID": iID }, iID ,function (err,data) { console.log("put type"); cb(iID); });
 						});
+
 }
+
 
 
 function generateAthenaGUID()

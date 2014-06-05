@@ -152,11 +152,13 @@ function fregionProcessor(htmlCode,elementTagname)
 				var bbox=getElementBBox($(e).children("rect").get(0));
 				var nnode=$("body").append(htmlCode); 
 				$("body").children().last().children("input").addClass($(e).attr('class'));
+				$("body").children().last().children("input").removeClass("ftext");
+				$("body").children().last().children("input").removeClass("fpass");
 				$("body").children().last().css('position','absolute'); 
 				$("body").children().last().css('left',(bbox[0]-2)+'px');
 				$("body").children().last().css('top',(bbox[1])+'px');
 				$("body").children().last().children().first().keyup(function (e) 
-																	{
+																	{   console.log(e);
 																		var data=$(e.target).val();
   																			if (e.keyCode == 13 && callbacks.onreturn) { callbacks.onreturn(data); $(e.target).blur(); } 
 																	});

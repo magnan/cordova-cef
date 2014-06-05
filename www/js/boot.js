@@ -211,6 +211,7 @@ function checkProcessCompletion(processes)
 	}
 	if(done)
 	{
+		stopSyncAnimation();
 		clearInterval(syncEndInterval);
 		continueStep4();
 	}
@@ -231,12 +232,12 @@ function continueStep4()
 
 function handleMediaJS(status,path)
 {
-	alert("sent:"+path);
+	//alert("sent:"+path);
 	console.log("handle media js");
     console.log(status);
 	console.log(path);
 	console.log(path.split("\\").join("/"));
-	alert("converted:"+path.split("\\").join("/"));
+	//alert("converted:"+path.split("\\").join("/"));
 	handleMedia(status,path.split("\\").join("/"));
 }
 
