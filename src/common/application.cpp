@@ -197,8 +197,9 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
 	  std::string str = arguments[0]->GetStringValue().ToString();
 	  const char* c = str.c_str();
-	  eval_string((char*) c);
-	  std::string res = eval_result;
+	  //eval_string((char*) c);
+	  //std::string res = eval_result;
+	  std::string res = eval_string((char*) c);
 	  std::wstring reswide = std::wstring(res.begin(), res.end());
 	  retval = CefV8Value::CreateString(reswide.c_str());
 	  return true;

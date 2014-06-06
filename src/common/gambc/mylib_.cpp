@@ -1177,7 +1177,6 @@
 " _system"
 " _thread"
 " mylib"
-" mylib#0"
 "##*"
 "##+"
 "##-"
@@ -1239,6 +1238,7 @@
 "##bignum.adigit-width"
 "##bignum.arithmetic-shift"
 "##bignum.arithmetic-shift-into!"
+"##bignum.copy"
 "##bignum.div"
 "##bignum.fast-gcd-size"
 "##bignum.fdigit-base"
@@ -1978,6 +1978,7 @@
 "##in-new-compilation-scope"
 "##include-file-as-a-begin-expr"
 "##inexact->exact"
+"##inexact?"
 "##infinite?"
 "##infix-compound-expand"
 "##infix-id"
@@ -3051,7 +3052,6 @@
 "eqv?"
 "error"
 "eval"
-"eval-result-set!"
 "even?"
 "exact->inexact"
 "exact?"
@@ -3776,7 +3776,6 @@
 "##global-var-primitive-set!"
 "##global-var-ref"
 "##global-var-set!"
-"##inexact?"
 "##initial-dynwind"
 "##input-port-column-set!"
 "##input-port-line-set!"
@@ -4824,6 +4823,7 @@ ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_adigit_2d_zero_3f_,___G__23__23_bignum
 ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_adigit_2d_zeros,___G__23__23_bignum_2e_adigit_2d_zeros)
 ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_arithmetic_2d_shift,___G__23__23_bignum_2e_arithmetic_2d_shift)
 ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_arithmetic_2d_shift_2d_into_21_,___G__23__23_bignum_2e_arithmetic_2d_shift_2d_into_21_)
+___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_copy,___G__23__23_bignum_2e_copy)
 ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_div,___G__23__23_bignum_2e_div)
 ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_fast_2d_gcd_2d_size,___G__23__23_bignum_2e_fast_2d_gcd_2d_size)
 ___DEF_OLD_SYM_GLO(___S__23__23_bignum_2e_fdigit_2d_base,___G__23__23_bignum_2e_fdigit_2d_base)
@@ -9000,42 +9000,33 @@ ___BEGIN_NEW_SYM_GLO
 ___DEF_SUB_NSTR(___X0,6)
                ___NSTR6(32,109,121,108,105,98)
 ___DEF_NEW_SYM_GLO_SUP(0,___S__20_mylib,___X0,363337621,___G__20_mylib)
-___DEF_SUB_NSTR(___X1,8)
-               ___NSTR8(32,109,121,108,105,98,35,48)
-               ___NSTR0
-___DEF_NEW_SYM_GLO_SUP(___S__20_mylib,___S__20_mylib_23_0,___X1,80553782,___G__20_mylib_23_0)
-___DEF_SUB_NSTR(___X2,16)
+___DEF_SUB_NSTR(___X1,16)
                ___NSTR8(99,97,116,99,104,45,97,108)
                ___NSTR8(108,45,101,114,114,111,114,115)
                ___NSTR0
-___DEF_NEW_SYM_GLO_SUP(___S__20_mylib_23_0,___S_catch_2d_all_2d_errors,___X2,128324034,___G_catch_2d_all_2d_errors)
-___DEF_SUB_NSTR(___X3,16)
-               ___NSTR8(101,118,97,108,45,114,101,115)
-               ___NSTR8(117,108,116,45,115,101,116,33)
-               ___NSTR0
-___DEF_NEW_SYM_GLO_SUP(___S_catch_2d_all_2d_errors,___S_eval_2d_result_2d_set_21_,___X3,260088858,___G_eval_2d_result_2d_set_21_)
-___DEF_SUB_NSTR(___X4,11)
+___DEF_NEW_SYM_GLO_SUP(___S__20_mylib,___S_catch_2d_all_2d_errors,___X1,128324034,___G_catch_2d_all_2d_errors)
+___DEF_SUB_NSTR(___X2,11)
                ___NSTR8(101,118,97,108,45,115,116,114)
                ___NSTR3(105,110,103)
-___DEF_NEW_SYM_GLO_SUP(___S_eval_2d_result_2d_set_21_,___S_eval_2d_string,___X4,402811055,___G_eval_2d_string)
-___DEF_SUB_NSTR(___X5,5)
+___DEF_NEW_SYM_GLO_SUP(___S_catch_2d_all_2d_errors,___S_eval_2d_string,___X2,402811055,___G_eval_2d_string)
+___DEF_SUB_NSTR(___X3,5)
                ___NSTR5(109,121,108,105,98)
-___DEF_NEW_SYM_GLO(___S_eval_2d_string,___S_mylib,___X5,388268302,___G_mylib)
-___DEF_SUB_NSTR(___X6,16)
+___DEF_NEW_SYM_GLO(___S_eval_2d_string,___S_mylib,___X3,388268302,___G_mylib)
+___DEF_SUB_NSTR(___X4,16)
                ___NSTR8(114,101,97,100,45,102,114,111)
                ___NSTR8(109,45,115,116,114,105,110,103)
                ___NSTR0
-___DEF_NEW_SYM_GLO_SUP(___S_mylib,___S_read_2d_from_2d_string,___X6,300746212,___G_read_2d_from_2d_string)
-___DEF_SUB_NSTR(___X7,25)
+___DEF_NEW_SYM_GLO_SUP(___S_mylib,___S_read_2d_from_2d_string,___X4,300746212,___G_read_2d_from_2d_string)
+___DEF_SUB_NSTR(___X5,25)
                ___NSTR8(119,114,105,116,101,45,101,120)
                ___NSTR8(99,101,112,116,105,111,110,45)
                ___NSTR8(116,111,45,115,116,114,105,110)
                ___NSTR1(103)
-___DEF_NEW_SYM_GLO_SUP(___S_read_2d_from_2d_string,___S_write_2d_exception_2d_to_2d_string,___X7,228635317,___G_write_2d_exception_2d_to_2d_string)
-___DEF_SUB_NSTR(___X8,15)
+___DEF_NEW_SYM_GLO_SUP(___S_read_2d_from_2d_string,___S_write_2d_exception_2d_to_2d_string,___X5,228635317,___G_write_2d_exception_2d_to_2d_string)
+___DEF_SUB_NSTR(___X6,15)
                ___NSTR8(119,114,105,116,101,45,116,111)
                ___NSTR7(45,115,116,114,105,110,103)
-___DEF_NEW_SYM_GLO_SUP(___S_write_2d_exception_2d_to_2d_string,___S_write_2d_to_2d_string,___X8,241997482,___G_write_2d_to_2d_string)
+___DEF_NEW_SYM_GLO_SUP(___S_write_2d_exception_2d_to_2d_string,___S_write_2d_to_2d_string,___X6,241997482,___G_write_2d_to_2d_string)
 ___END_NEW_SYM_GLO(___S_write_2d_to_2d_string,0)
 
 #endif

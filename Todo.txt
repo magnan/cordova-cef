@@ -80,6 +80,16 @@ X Sound on click!?
     - Make sure hack doesn't leak memory
 
 
+LATEST TODO
+-----------
+
+X After taking a photo or using the JavaScript debugger, cannot enter text anymore in the main window
+  - Fixed with focusQuickHack
+    - We need to understand what is that window that is the correct window to have focus
+- Random crashes when taking a photo or a video
+- When taking a photo, it seems that if the photo is real dark or real blurry, then the JavaScript code receives a file but the file was not created
+
+
 QUESTIONS
 ---------
 

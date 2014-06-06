@@ -88,7 +88,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;JSON_IS_AMALGAMATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>..\..\src;..\..\src\common;..\..\src\common\gambc;..\..\src\windows-desktop;..\..\src\windows-desktop\plugins\cam;..\..\3rdparty\cef3;..\..\3rdparty\boost;..\..\3rdparty\pugixml\src;..\..\3rdparty\json-cpp-amalgamation;..\..\3rdparty\gambc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
