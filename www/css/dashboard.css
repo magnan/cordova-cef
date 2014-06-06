@@ -47,6 +47,10 @@
 }
 
 
+body
+{
+	overflow-x: hidden;
+}
 .smallFont{	font-size: 1em;}.mediumFont{	font-size: 1.5em;}.biggerFont{	font-size: 2em;}html.noscroll 
 {
     position: fixed; 

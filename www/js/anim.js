@@ -1646,11 +1646,12 @@ function computePiePath(cx,cy,cp)
 
 
 var animationInterval;
-
+var inActivity=false;
 
 function showActivityIndicator()
 {	
 	scrollToTop();
+	inActivity=true;
 	var s = Snap("#main"); 
 	var g = s.g().attr({"id": "actInd", class: "actInd"});
 
@@ -1695,6 +1696,7 @@ function hideActivityIndicator()
 {
 	clearInterval(animationInterval);
 	$(".actInd").remove();
+	inActivity=false;
 }
 
 

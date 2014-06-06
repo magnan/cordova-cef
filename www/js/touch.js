@@ -121,7 +121,8 @@ function processTouchStart(px,py)
 	found=classTouchTest(px,py,".swipe-left",function(node) { SimpleTouchMode=false; initialNodeTouched=node; });
 	if(!found)
 	{
-		found=classTouchTest(px,py,".touch",function(node) { eval($(node).attr('vonclick')); });
+		found=classTouchTest(px,py,".touch",function(node) { console.log("inActivity:"+ inActivity); if(!inActivity) eval($(node).attr('vonclick')); 
+		});
 		if(found)
 		{
 			SimpleTouchMode=true;
