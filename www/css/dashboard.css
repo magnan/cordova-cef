@@ -47,5 +47,14 @@
 }
 
 
-.smallFont{	font-size: 1em;}.mediumFont{	font-size: 1.5em;}.biggerFont{	font-size: 2em;}
+.smallFont{	font-size: 1em;}.mediumFont{	font-size: 1.5em;}.biggerFont{	font-size: 2em;}html.noscroll 
+{
+    position: fixed; 
+    overflow-y: scroll;
+    width: 100%;
+}
 
+.stop-scrolling {
+  height: 100%;
+  overflow: hidden;
+}

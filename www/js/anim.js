@@ -380,17 +380,39 @@ function bringModal(aIID,infotype)
 function showModal(data,id)
 {
 	scrollToTop();
+	disableScolling();
 	Pablo("#main").append(Pablo(data));
 	runAdjustmentsScripts();
 	fadeIn(id);
 }
 
 
+
+
+
 function closeModal(id,callback)
 {
 	stopWarningSignAnim();
+	enableScrolling();
 	fadeOut(id,function () { $("#"+id).remove(); if(callback) callback(); });
 }
+
+///
+//// disable/enable scrolling
+///
+
+
+function disableScolling()
+{
+    $('body').addClass('stop-scrolling');         
+}
+
+
+function enableScrolling()
+{
+	$('body').removeClass('stop-scrolling');         	
+}
+
 
 
 ///
