@@ -1,0 +1,3 @@
+[submodule "www/clientlib"]
+	path = www/clientlib
+	url = https://github.com/magnan/Athena-Client.git
