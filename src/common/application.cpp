@@ -159,7 +159,7 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
 {
 	// cleanup gambit
-	cleanup_gambit();
+	//cleanup_gambit();
 }
 
 CefRefPtr<CefV8Value> callback_func;
