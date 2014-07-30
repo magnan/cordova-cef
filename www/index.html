@@ -5,32 +5,33 @@
       <meta name="description" content="">
       <meta name="author" content="Categorical Design Solutions">
       <link rel="shortcut icon" href="assets/ico/favicon.ico">
-      <link href="plugin/font-awesome-4.1.0/css/font-awesome.css" rel="stylesheet">
-      <link href="fonts/webfontkit-20140114-115201/stylesheet.css" rel="stylesheet">
-      <link href="fonts/webfontkit-20140114-123852/stylesheet.css" rel="stylesheet">
-      <link href="css/dashboard.css" rel="stylesheet">
-	  <script src="plugin/pouchdb-2.2.0.min.js"></script>
-      <script src="js/CouchDBInterface.js"></script>
-      <script src="plugin/d3/d3.v3.min.js"></script>
-	  <script src="plugin/jquery-1.11.0.min.js"></script>
-	  <script src="plugin/jquery.couch.js"></script>
-	  <script src="plugin/jquery-form.js"></script>
-	  <script src="plugin/cordova.js"></script>
-      <script src="plugin/Snap.svg-0.1.0/dist/snap.svg-min.js"></script>
-      <script src="plugin/pablo.min.js"></script>
-      <script src="js/Server-Push.js"></script>
-      <script src="js/textFlow.js"></script>
-      <script src="js/anim.js"></script>
-      <script src="js/dashboard.js"></script>
-      <script src="js/widgets.js"></script>
-	  <script src="js/aide.js"></script>
+      <link href="clientlib/plugin/font-awesome-4.1.0/css/font-awesome.css" rel="stylesheet">
+      <link href="clientlib/fonts/webfontkit-20140114-115201/stylesheet.css" rel="stylesheet">
+      <link href="clientlib/fonts/webfontkit-20140114-123852/stylesheet.css" rel="stylesheet">
+      <link href="clientlib/css/dashboard.css" rel="stylesheet">
+	  <script src="clientlib/plugin/pouchdb-2.2.0.min.js"></script>
+	  <script src="js/config.js"></script>
+      <script src="clientlib/js/CouchDBInterface.js"></script>
+      <script src="clientlib/plugin/d3/d3.v3.min.js"></script>
+	  <script src="clientlib/plugin/jquery-1.11.0.min.js"></script>
+	  <script src="clientlib/plugin/jquery.couch.js"></script>
+	  <script src="clientlib/plugin/jquery-form.js"></script>
+	  <script src="clientlib/plugin/cordova.js"></script>
+      <script src="clientlib/plugin/Snap.svg-0.1.0/dist/snap.svg-min.js"></script>
+      <script src="clientlib/plugin/pablo.min.js"></script>
+      <script src="clientlib/js/Server-Push.js"></script>
+      <script src="clientlib/js/textFlow.js"></script>
+      <script src="clientlib/js/anim.js"></script>
+      <script src="clientlib/js/dashboard.js"></script>
+      <script src="clientlib/js/widgets.js"></script>
+	  <script src="clientlib/js/aide.js"></script>
       <style type="text/css">body {-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select:none;}.pStep{cursor:default;}</style>
    </head>
    <body id="athena" style="margin: 0px">
 		<svg id="main" width="1024" height="768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 			<defs>
 			<pattern id="splashFill" width="128" height="128" patternUnits="userSpaceOnUse">
-            	<image xlink:href="img/ath-splash-bg.svg" width="128" height="128"/>
+            	<image xlink:href="clientlib/img/ath-splash-bg.svg" width="128" height="128"/>
 	    	</pattern>
             <linearGradient id="gWait" x1="0" y1="0" x2="1" y2="1">
                <stop offset="0%" stop-color="white"></stop>
@@ -90,6 +91,9 @@
             <mask id="userChatIcon" x="0" y="0" width="40" height="40">
                <circle fill="#ffffff" cx="20" cy="20" r="20"></circle>
             </mask>
+			<mask id="userChatIconBig" x="0" y="0" width="128" height="128">
+               <circle fill="#ffffff" cx="64" cy="64" r="64"></circle>
+            </mask>
          </defs>
          	<g id="outerContent">
 			</g>
@@ -98,9 +102,10 @@
 			<input name="MAX_FILE_SIZE"  input-type="hidden" value="100000">
 			<input id="SIContentInput" name="content"  input-type="hidden" value="">
 	   </form>
-	  <script src="plugin/hammer.min.js"></script>
-	  <script src="js/touch.js"></script>
+	  <script src="clientlib/plugin/hammer.min.js"></script>
+	  <script src="clientlib/js/touch.js"></script>
+	  <script src="clientlib/js/boot.js"></script>
       <script src="js/loader.js"></script>
-	  <script src="js/boot.js"></script>
+
 	</body>
 </html>
