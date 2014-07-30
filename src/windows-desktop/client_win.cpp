@@ -61,7 +61,6 @@ bool Client_Win::OnKeyEvent( CefRefPtr<CefBrowser> browser, const CefKeyEvent& e
           browser->Reload();
           return true;
         }
-		case 0x52:
         case VK_F11:
         {
             toggleFullScreen(browser->GetHost()->GetWindowHandle(), true);
