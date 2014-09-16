@@ -162,6 +162,25 @@ void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<Ce
 	//cleanup_gambit();
 }
 
+bool CameraAvailable()
+{
+	HMODULE lib;
+
+	lib = LoadLibrary(L"Mfplat.dll");
+	if (lib)
+	{
+		FARPROC proc = GetProcAddress(lib, "MFCreateDXGIDeviceManager");
+		if (proc)
+			MessageBox(NULL, L"YES", NULL, MB_OK);
+		else
+			MessageBox(NULL, L"NO", NULL, MB_OK);
+	}
+	else
+		MessageBox(NULL, L"NO", NULL, MB_OK);
+
+	return false;
+}
+
 CefRefPtr<CefV8Value> callback_func;
 CefRefPtr<CefV8Context> callback_context;
 
@@ -188,10 +207,15 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   }
   if(name == "camera" && arguments.size() == 1 && arguments[0]->IsFunction())
   {
-	  callback_func = arguments[0];
-      callback_context = CefV8Context::GetCurrentContext();
-	  CameraCapture(startfullscreen, buttonsize, &CameraDone);
-	  return true;
+	  if (CameraAvailable())
+	  {
+		  callback_func = arguments[0];
+		  callback_context = CefV8Context::GetCurrentContext();
+		  // CameraCapture(startfullscreen, buttonsize, &CameraDone);
+		  return true;
+	  }
+	  else
+		  return false;
   }
   if(name == "eval" && arguments.size() == 1)
   {
