@@ -22,7 +22,7 @@
 #include "client_win.h"
 #include "cefclient/util.h"
 
-#include "Capture.h"
+//#include "Capture.h"
 
 
 #include <Winuser.h>
