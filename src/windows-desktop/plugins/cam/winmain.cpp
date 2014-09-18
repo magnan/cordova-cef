@@ -801,7 +801,7 @@ done:
     }
 }
 
-void CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
+extern "C" __declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	bool firstTime = ! cameraInited;
 

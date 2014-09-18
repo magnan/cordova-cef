@@ -21,8 +21,6 @@
 
 #include "common/logging.h"
 
-#include "Camera.h"
-
 #include <Windows.h>
 #include "include/cef_base.h"
 
