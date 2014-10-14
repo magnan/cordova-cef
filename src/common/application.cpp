@@ -31,6 +31,21 @@
 bool startfullscreen = false;
 int buttonsize = 64;
 
+#ifdef SHOWDEBUG
+#include <Strsafe.h>
+void ShowDebug(PCTSTR format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    TCHAR string[MAX_PATH];
+
+    StringCbVPrintf(string, sizeof(string), format, args);
+    
+	MessageBox(NULL, string, NULL, MB_OK);
+}
+#endif
+
 Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application),
     _client(client),
@@ -136,9 +151,11 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   global->SetValue("_cordovaNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   
   _exposedJSObject = CefV8Value::CreateObject(NULL);
+  global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   CefRefPtr<CefV8Value> camera = CefV8Value::CreateFunction("camera", this);
   _exposedJSObject->SetValue("camera", camera, V8_PROPERTY_ATTRIBUTE_READONLY);
-  global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+  CefRefPtr<CefV8Value> cameraAvailable = CefV8Value::CreateFunction("cameraAvailable", this);
+  _exposedJSObject->SetValue("cameraAvailable", cameraAvailable, V8_PROPERTY_ATTRIBUTE_READONLY);
   
   _exposedJSObject = CefV8Value::CreateObject(NULL);
   CefRefPtr<CefV8Value> eval = CefV8Value::CreateFunction("eval", this);
@@ -171,14 +188,24 @@ bool CameraAvailable()
 	{
 		FARPROC proc = GetProcAddress(lib, "MFCreateDXGIDeviceManager");
 		if (proc)
-			MessageBox(NULL, L"YES", NULL, MB_OK);
+			return true;
 		else
-			MessageBox(NULL, L"NO", NULL, MB_OK);
+			return false;
 	}
 	else
-		MessageBox(NULL, L"NO", NULL, MB_OK);
+		return false;
+}
 
-	return false;
+typedef void (*CameraCaptureType)(bool, int, CameraDoneCallback);
+
+void CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
+{
+	HMODULE lib;
+
+	lib = LoadLibrary(L"Camera.dll");
+	CameraCaptureType proc = (CameraCaptureType) GetProcAddress(lib, "CameraCapture");
+
+	(proc)(startfullscreen, buttonsize, callback);
 }
 
 CefRefPtr<CefV8Value> callback_func;
@@ -205,17 +232,20 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
     _pluginManager->exec(service, action, callbackId, rawArgs);
     return true;
   }
+  if(name == "cameraAvailable" && arguments.size() == 0)
+  {
+	  retval = CefV8Value::CreateBool(CameraAvailable());
+	  return true;
+  }
   if(name == "camera" && arguments.size() == 1 && arguments[0]->IsFunction())
   {
 	  if (CameraAvailable())
 	  {
 		  callback_func = arguments[0];
 		  callback_context = CefV8Context::GetCurrentContext();
-		  // CameraCapture(startfullscreen, buttonsize, &CameraDone);
-		  return true;
+		  CameraCapture(startfullscreen, buttonsize, &CameraDone);
 	  }
-	  else
-		  return false;
+	  return true;
   }
   if(name == "eval" && arguments.size() == 1)
   {
