@@ -1,0 +1,5 @@
+(script jazz
+
+(import jazz.debuggee)
+
+(detach-from-controller))

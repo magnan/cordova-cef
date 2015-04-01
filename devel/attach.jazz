@@ -1,0 +1,12 @@
+(script jazz
+
+(import jazz.debuggee)
+(import jazz.platform)
+
+(let ((debugger "localhost:9000"))
+  (current-process-title-set! "Sentio")
+  (setup-debuggee debugger: debugger)
+  (start-repl-thread (current-thread) #f (get-console-port))
+  (select-console)
+  ;(transmit-runtime-information~ (get-local-process) 'all)
+  ))
