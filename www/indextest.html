@@ -1,0 +1,62 @@
+<html lang="en"><head>
+      <meta charset="utf-8">
+      <title>Athena</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <meta name="author" content="Categorical Design Solutions">
+      <link rel="shortcut icon" href="assets/ico/favicon.ico">
+      <link href="clientlib/plugin/font-awesome-4.1.0/css/font-awesome.css" rel="stylesheet">
+      <link href="clientlib/fonts/webfontkit-20140114-115201/stylesheet.css" rel="stylesheet">
+      <link href="clientlib/fonts/webfontkit-20140114-123852/stylesheet.css" rel="stylesheet">
+      <link href="clientlib/css/dashboard.css" rel="stylesheet">
+	  <script src="clientlib/plugin/pouchdb-2.2.0.min.js"></script>
+	  <script src="js/config.js"></script>
+      <script src="clientlib/js/CouchDBInterface.js"></script>
+      <script src="clientlib/plugin/d3/d3.v3.min.js"></script>
+	  <script src="clientlib/plugin/jquery-1.11.0.min.js"></script>
+	  <script src="clientlib/plugin/jquery.couch.js"></script>
+	  <script src="clientlib/plugin/jquery-form.js"></script>
+	  <script src="clientlib/plugin/cordova.js"></script>
+      <script src="clientlib/plugin/Snap.svg-0.1.0/dist/snap.svg-min.js"></script>
+      <script src="clientlib/plugin/pablo.min.js"></script>
+      <script src="clientlib/js/Server-Push.js"></script>
+      <script src="clientlib/js/textFlow.js"></script>
+      <script src="clientlib/js/anim.js"></script>
+      <script src="clientlib/js/dashboard.js"></script>
+      <script src="clientlib/js/widgets.js"></script>
+	  <script src="clientlib/js/aide.js"></script>
+        <script>function toto() { alert('yo'); console.log('hello from toto'); return "toto"; }</script>
+        <script>var is_debuggee_setup = false;</script>
+        <script>var is_debuggee_attached = false;</script>
+        <script>function load() { _evalNative.eval('(load "c:/Home/magnan/cordova-cef/devel/load.scm")'); }</script>
+        <script>function setup_debuggee() { if (!is_debuggee_setup) { _evalNative.eval('(load "c:/Home/magnan/cordova-cef/devel/setup")'); is_debuggee_setup = true; } }</script>
+        <script>function attach_debuggee() { setup_debuggee(); _evalNative.eval('(jazz:load-script "c:/Home/magnan/cordova-cef/devel/attach.jazz")'); is_debuggee_attached = true; }</script>
+        <script>function detach_debuggee() { _evalNative.eval('(jazz:load-script "c:/Home/magnan/cordova-cef/devel/detach.jazz")'); is_debuggee_attached = false; }</script>
+        <script>function quit_application() { if (is_debuggee_attached) detach_debuggee(); _quitNative.quit(); }</script>
+        <script>function test() { _evalNative.eval('(load "c:/Home/magnan/cordova-cef/devel/test.scm")'); }</script>
+        <script>function test2() { alert(_testNative.test()); }</script>
+        <script>function errorcatch() { alert(_evalcatchNative.evalcatch('(append 1 2)')); }</script>
+        <script>function error() { _evalNative.eval('(jazz.language.runtime.exception:with-restart-catcher (quote resume-loop) "Resume application" (lambda () (append 1 2)))'); }</script>
+        <script>function setup() { setup_debuggee(); }</script>
+        <script>function attach() { attach_debuggee(); }</script>
+        <script>function detach() { detach_debuggee(); }</script>
+        <script>function debug() { _evalNative.eval('(jazz:load-script "c:/Home/magnan/cordova-cef/devel/debug.jazz")'); }</script>
+        <script>function quit() { quit_application(); }</script>
+      <style type="text/css">body {-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select:none;}.pStep{cursor:default;}</style>
+   </head>
+   <body id="athena" style="margin: 0px">
+     <button onclick="load()">Load</button>
+     <button onclick="test()">Test</button>
+     <button onclick="test2()">Test2</button>
+     <button onclick="errorcatch()">Catch</button>
+     <button onclick="attach()">Attach</button>
+     <button onclick="detach()">Detach</button>
+     <button onclick="debug()">Debug</button>
+     <button onclick="error()">Error</button>
+     <button onclick="quit()">Quit</button>
+	  <script src="clientlib/plugin/hammer.min.js"></script>
+	  <script src="clientlib/js/touch.js"></script>
+	  <script src="clientlib/js/boot.js"></script>
+      <!-- <script src="js/loader.js"></script> -->
+	</body>
+</html>
