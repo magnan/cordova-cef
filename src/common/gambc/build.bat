@@ -1,5 +1,5 @@
-gsc -c mylib.scm
-gsc -link -o mylib_.c mylib.c
+gsc -cc-options "-D___LIBRARY" -c mylib.scm
+gsc -cc-options "-D___LIBRARY" -link -o mylib_.c mylib.c
 
 # remove old .cpp
 rm mylib.cpp; rm mylib_.cpp

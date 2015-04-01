@@ -1,18 +1,18 @@
 /* File: "gambit.h" */
 
 /*
- * Copyright (c) 1994-2014 by Marc Feeley, All Rights Reserved.
+ * Copyright (c) 1994-2015 by Marc Feeley, All Rights Reserved.
  */
 
 #ifndef ___GAMBIT_H
 #define ___GAMBIT_H
 
 #ifndef ___VERSION
-#define ___VERSION 407002
+#define ___VERSION 407004
 #endif
 
-#if ___VERSION != 407002
-#include "gambit-not407002.h"
+#if ___VERSION != 407004
+#include "gambit-not407004.h"
 #else
 
 #ifdef HAVE_CONFIG_H
@@ -327,6 +327,18 @@
 #else
 #ifdef __arm__
 #define ___CPU_arm
+#else
+#ifdef arm64
+#define ___CPU_arm
+#else
+#ifdef __arm64
+#define ___CPU_arm
+#else
+#ifdef __arm64__
+#define ___CPU_arm
+#endif
+#endif
+#endif
 #endif
 #endif
 #endif
@@ -1393,12 +1405,25 @@
 #include <math.h>
 #endif
 
-#ifdef _MSC_VER
+/*
+ * We assume that no C compiler has good implementations of atan2 and
+ * pow.  So we need to define them in the Gambit runtime system.
+ */
+
+#define ___DEFINE_ATAN2
+#define ___DEFINE_POW
+
+#ifdef ___OS_WIN32
 
 /*
  * Older versions of the Microsoft Visual C compilers did not
  * implement some important math functions.  So we need to define them
- * in the Gambit runtime system.
+ * in the Gambit runtime system.  We do this even if using another
+ * C compiler, such as gcc, in order to allow dynamically compiled
+ * Scheme files to be compiled with a C compiler different from the
+ * C compiler used for compiling the Gambit runtime system.  If this
+ * wasn't done, the offsets of the fields in ___global_state_struct
+ * would be different, causing calls to the wrong conversion functions.
  */
 
 #define ___DEFINE_SCALBN
@@ -1408,6 +1433,10 @@
 #define ___DEFINE_ASINH
 #define ___DEFINE_ACOSH
 #define ___DEFINE_ATANH
+
+#endif
+
+#ifdef _MSC_VER
 
 #if _MSC_VER >= 1800
 
@@ -1438,7 +1467,7 @@
 
 /*
  * On other C compilers, we assume that the following math functions
- * were implemented.
+ * are implemented.
  */
 
 #define ___HAVE_GOOD_SCALBN
@@ -1453,14 +1482,6 @@
 #define ___HAVE_GOOD_TANH
 
 #endif
-
-/*
- * We assume that no C compiler has good implementations of atan2 and
- * pow.  So we need to define them in the Gambit runtime system.
- */
-
-#define ___DEFINE_ATAN2
-#define ___DEFINE_POW
 
 
 /*---------------------------------------------------------------------------*/
@@ -3220,6 +3241,22 @@ ___STORE_U64(___BODY_AS(x,___tSUBTYPED),(y)>>___TB,___U64UNBOX(z));
 #define ___GLOBALVARPRIMREF(gv)___PRMCELL(___GLOBALVARSTRUCT(gv)->prm)
 #define ___GLOBALVARSET(gv,x)___GLOCELL(___GLOBALVARSTRUCT(gv)->val) = x;
 #define ___GLOBALVARPRIMSET(gv,x)___PRMCELL(___GLOBALVARSTRUCT(gv)->prm) = x;
+
+#define ___RATNUMMAKE(num,den) \
+(___ALLOC(___RATNUM_SIZE+1), \
+___hp[-3]=___MAKE_HD_WORDS(___RATNUM_SIZE,___sRATNUM), \
+___hp[-2]=num,___hp[-1]=den,___TAG((___hp-___RATNUM_SIZE-1),___tSUBTYPED))
+
+#define ___RATNUMNUMERATOR(obj)___FIELD(obj,0)
+#define ___RATNUMDENOMINATOR(obj)___FIELD(obj,1)
+
+#define ___CPXNUMMAKE(real,imag) \
+(___ALLOC(___CPXNUM_SIZE+1), \
+___hp[-3]=___MAKE_HD_WORDS(___CPXNUM_SIZE,___sCPXNUM), \
+___hp[-2]=real,___hp[-1]=imag,___TAG((___hp-___CPXNUM_SIZE-1),___tSUBTYPED))
+
+#define ___CPXNUMREAL(obj)___FIELD(obj,0)
+#define ___CPXNUMIMAG(obj)___FIELD(obj,1)
 
 #define ___MAKEPROMISE(x) \
 (___ALLOC(___PROMISE_SIZE+1), \
@@ -7519,10 +7556,6 @@ typedef struct ___processor_state_struct
 
 #endif
 
-#ifdef ___USE_SETJMP
-    ___jmpbuf_struct *catcher;
-#endif
-
 #ifdef ___DEBUG_STACK_LIMIT
     int poll_line;
     char *poll_file;
@@ -7540,6 +7573,10 @@ typedef struct ___processor_state_struct
 #ifdef ___HEARTBEAT_USING_POLL_COUNTDOWN
     int heartbeat_interval;
     int heartbeat_countdown;
+#endif
+
+#ifdef ___USE_SETJMP
+    ___jmpbuf_struct *catcher;
 #endif
   } ___processor_state_struct;
 
@@ -7905,14 +7942,6 @@ typedef struct ___global_state_struct
     double (*sqrt)
        ___P((double x),
             ());
-#endif
-
-#ifdef ___USE_SETJMP
-#ifndef ___CAN_IMPORT_SETJMP_DYNAMICALLY
-    int (*setjmp)
-       ___P((jmp_buf env),
-            ());
-#endif
 #endif
 
 #ifndef ___CAN_IMPORT_DYNAMICALLY
@@ -9066,6 +9095,14 @@ typedef struct ___global_state_struct
 #endif
     void (*___disable_heartbeat_interrupts) ___PVOID;
     void (*___enable_heartbeat_interrupts) ___PVOID;
+#endif
+
+#ifdef ___USE_SETJMP
+#ifndef ___CAN_IMPORT_SETJMP_DYNAMICALLY
+    int (*setjmp)
+       ___P((jmp_buf env),
+            ());
+#endif
 #endif
   } ___global_state_struct;
 

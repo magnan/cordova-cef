@@ -1,4 +1,4 @@
-#define ___VERSION 407002
+#define ___VERSION 407004
 #include "gambit.h"
 
 /*
