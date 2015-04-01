@@ -46,6 +46,60 @@ void ShowDebug(PCTSTR format, ...)
 }
 #endif
 
+Application* currentApp;
+
+//ExecuteJavaScript
+//NEED TO USE EXECUTEJAVASCRIPT AND NOT RELY ON ANY RETURN VALUE
+//WORST CASE SCENARIO WE CAN RETURN AND WAIT ON A VALUE BY A CALLBACK TO SCHEME
+
+void call_js(char* expr)
+{
+	currentApp->runJavaScript(expr);
+}
+
+void register_export(char* name, int type)
+{
+	currentApp->registerExport(name, type);
+}
+
+/*
+CefRefPtr<CefV8Value> blabla;
+void call_js(char* expr)
+{
+	CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+	CefString code;
+	CefRefPtr<CefV8Value> retval;
+	CefRefPtr<CefV8Exception> exception;
+	code.FromString(expr);
+	context->Eval(code, retval, exception);
+	blabla = retval;
+	if (!retval)
+		return NULL;
+	else
+	{
+		char* result = (char*) retval->GetStringValue().ToString().c_str();
+		return result;
+	}
+}*/
+/*
+const char* call_js2(char* expr)
+{
+	CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+	CefString code;
+	CefRefPtr<CefV8Value> retval;
+	CefRefPtr<CefV8Exception> exception;
+	code.FromString(expr);
+	context->Eval(code, retval, exception);
+	blabla = retval;
+	if (!retval)
+		return NULL;
+	else
+	{
+		const char* result = retval->GetStringValue().ToString().c_str();
+		return result;
+	}
+}*/
+
 Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths> paths)
   : INIT_LOGGER(Application),
     _client(client),
@@ -64,6 +118,62 @@ Application::Application(CefRefPtr<Client> client, std::shared_ptr<Helper::Paths
 Application::~Application()
 {
 
+}
+
+
+// seems that cef can call the window procedure from a thread
+CRITICAL_SECTION gambit_critical_section; 
+
+
+void safe_gambit_eval_string_void(char* str)
+{
+	EnterCriticalSection(&gambit_critical_section);
+	gambit_eval_string_void(str);
+	LeaveCriticalSection(&gambit_critical_section);
+}
+
+
+int safe_gambit_eval_string_int(char* str)
+{
+	EnterCriticalSection(&gambit_critical_section);
+	int result = gambit_eval_string_int(str);
+	LeaveCriticalSection(&gambit_critical_section);
+	return result;
+}
+
+
+char* safe_gambit_eval_string_string(char* str)
+{
+	EnterCriticalSection(&gambit_critical_section);
+	char* result = gambit_eval_string_string(str);
+	LeaveCriticalSection(&gambit_critical_section);
+	return result;
+}
+
+
+char* safe_gambit_eval_string(char* str)
+{
+	EnterCriticalSection(&gambit_critical_section);
+	char* result = gambit_eval_string(str);
+	LeaveCriticalSection(&gambit_critical_section);
+	return result;
+}
+
+
+char* safe_gambit_eval_string_catch(char* str)
+{
+	EnterCriticalSection(&gambit_critical_section);
+	char* result = gambit_eval_string_catch(str);
+	LeaveCriticalSection(&gambit_critical_section);
+	return result;
+}
+
+
+void safe_gambit_heartbeat()
+{
+	EnterCriticalSection(&gambit_critical_section);
+	gambit_heartbeat();
+	LeaveCriticalSection(&gambit_critical_section);
 }
 
 
@@ -130,6 +240,7 @@ void Application::OnContextInitialized()
   _pluginManager->init();
 
   // setup gambit
+  InitializeCriticalSection(&gambit_critical_section);
   setup_gambit();
 
   // Create the browser asynchronously and load the startup url
@@ -140,6 +251,8 @@ void Application::OnContextInitialized()
   if (startfullscreen)
 	  _client.get()->toggleFullScreen(_client.get()->GetBrowser()->GetHost()->GetWindowHandle(), false);
   ShowWindow(_mainWindow, SW_SHOW );
+
+  currentApp = this;
 }
 
 void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
@@ -157,10 +270,8 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   CefRefPtr<CefV8Value> cameraAvailable = CefV8Value::CreateFunction("cameraAvailable", this);
   _exposedJSObject->SetValue("cameraAvailable", cameraAvailable, V8_PROPERTY_ATTRIBUTE_READONLY);
   
-  _exposedJSObject = CefV8Value::CreateObject(NULL);
-  CefRefPtr<CefV8Value> eval = CefV8Value::CreateFunction("eval", this);
-  _exposedJSObject->SetValue("eval", eval, V8_PROPERTY_ATTRIBUTE_READONLY);
-  global->SetValue("_evalNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+	global->SetValue("evalnative", CefV8Value::CreateFunction("eval", this), V8_PROPERTY_ATTRIBUTE_READONLY);
+	global->SetValue("evalcatchnative", CefV8Value::CreateFunction("evalcatch", this), V8_PROPERTY_ATTRIBUTE_READONLY);
   
   _exposedJSObject = CefV8Value::CreateObject(NULL);
   CefRefPtr<CefV8Value> quit = CefV8Value::CreateFunction("quit", this);
@@ -171,12 +282,15 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
   CefRefPtr<CefV8Value> devtools = CefV8Value::CreateFunction("devtools", this);
   _exposedJSObject->SetValue("devtools", devtools, V8_PROPERTY_ATTRIBUTE_READONLY);
   global->SetValue("_devtoolsNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+  
+	global->SetValue("testnative", CefV8Value::CreateFunction("test", this), V8_PROPERTY_ATTRIBUTE_READONLY);
 }
 
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
 {
 	// cleanup gambit
 	//cleanup_gambit();
+	DeleteCriticalSection(&gambit_critical_section);
 }
 
 bool CameraAvailable()
@@ -221,8 +335,71 @@ void CameraDone(int code, wchar_t* filename)
 	callback_func->ExecuteFunctionWithContext(callback_context, NULL, args);
 }
 
+#include <map>
+
+using namespace std;
+
+map <string, int> exports;
+
+void Application::registerExport(char* name, int type)
+{
+	CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();;
+    CefRefPtr<CefV8Value> global = context->GetGlobal();
+	global->SetValue(name, CefV8Value::CreateFunction(name, this), V8_PROPERTY_ATTRIBUTE_READONLY);
+	exports[name] = type;
+}
+
 bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception )
 {
+	auto exported = exports.find(name.ToString());
+	if(exported != exports.end())
+	{
+		if (exported->second == -1)
+		{
+			stringstream stream;
+			stream << "(";
+			stream << exported->first;
+			int size = (int) arguments.size();
+			for (int n = 0; n < size; n++)
+			{
+				stream << " ";
+				stream << "\"";
+				stream << arguments[n]->GetStringValue().ToString();
+				stream << "\"";
+			}
+			stream << ")";
+			safe_gambit_eval_string_void((char*) (stream.str().c_str()));
+			return true;
+		}
+		else
+		switch (exported->second)
+		{
+		case 0:
+			{
+				int result = safe_gambit_eval_string_int((char*) exported->first.c_str());
+				retval = CefV8Value::CreateBool((result == 0) ? false : true);
+				return true;
+			}
+		case 1:
+			{
+				int result = safe_gambit_eval_string_int((char*) exported->first.c_str());
+				retval = CefV8Value::CreateInt(result);
+				return true;
+			}
+		case 2:
+			{
+				char* result = safe_gambit_eval_string_string((char*) exported->first.c_str());
+				retval = CefV8Value::CreateString(result);
+				return true;
+			}
+		case 9:
+			{
+				retval = CefV8Value::CreateUndefined();
+				return true;
+			}
+		}
+	}
+
   if(name == "exec" && arguments.size() == 4)
   {
     std::string service = arguments[0]->GetStringValue().ToString();
@@ -251,9 +428,16 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
 	  std::string str = arguments[0]->GetStringValue().ToString();
 	  const char* c = str.c_str();
-	  //eval_string((char*) c);
-	  //std::string res = eval_result;
-	  std::string res = eval_string((char*) c);
+	  std::string res = safe_gambit_eval_string((char*) c);
+	  std::wstring reswide = std::wstring(res.begin(), res.end());
+	  retval = CefV8Value::CreateString(reswide.c_str());
+	  return true;
+  }
+  if(name == "evalcatch" && arguments.size() == 1)
+  {
+	  std::string str = arguments[0]->GetStringValue().ToString();
+	  const char* c = str.c_str();
+	  std::string res = safe_gambit_eval_string_catch((char*) c);
 	  std::wstring reswide = std::wstring(res.begin(), res.end());
 	  retval = CefV8Value::CreateString(reswide.c_str());
 	  return true;
@@ -268,6 +452,16 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
   {
 	  CefRefPtr<CefBrowser> browser = _client->GetBrowser();
 	  _client->showDevTools(browser);
+	  return true;
+  }
+  if(name == "test" && arguments.size() == 0)
+  {
+	  /* const char* result = call_js2("toto()");
+	  //const char* result = "blabla";
+	  std::string res = result;
+	  std::wstring reswide = std::wstring(res.begin(), res.end());
+	  retval = CefV8Value::CreateString(reswide.c_str());
+	  //retval = blabla; // CefV8Value::CreateString(result); */
 	  return true;
   }
   return false;
@@ -296,4 +490,9 @@ void Application::handlePause()
 void Application::handleResume()
 {
   runJavaScript("cordova.fireDocumentEvent('resume');");
+}
+
+void Application::handleTimer()
+{
+	safe_gambit_heartbeat();
 }

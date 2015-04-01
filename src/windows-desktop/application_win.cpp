@@ -94,6 +94,8 @@ Application_Win::Application_Win(std::shared_ptr<Helper::Paths> paths)
   // printlog("MAINWINDOW %d", _mainWindow);
 
   SetWindowLongPtrW(_mainWindow, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+  SetTimer(_mainWindow, 0, 10, NULL);
  
   // Done in OnContextInitialized after toggleFullScreen to minimize flicker
   // ShowWindow(_mainWindow, SW_SHOW );
@@ -164,6 +166,12 @@ LRESULT CALLBACK Application_Win::WndProc( HWND hWnd, UINT message, WPARAM wPara
         }
     }
     break;
+
+    case WM_TIMER:
+    {
+      appwindow->handleTimer();
+      return 0;
+    }
 
     case WM_CLOSE:
     {

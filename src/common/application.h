@@ -36,6 +36,10 @@ extern bool startfullscreen;
 extern int buttonsize;
 
 
+extern void call_js(char*);
+extern void register_export(char*, int);
+
+
 class Application : public CefApp,
                     public CefBrowserProcessHandler,
                     public CefRenderProcessHandler,
@@ -59,6 +63,8 @@ public:
   //CefV8Handler method(s)
   virtual bool Execute( const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception ) OVERRIDE;
 
+  void registerExport(char* name, int type);
+
   void sendJavascript(const std::string& statement);
   void sendPluginResult(std::shared_ptr<const PluginResult> pluginResult, const std::string& callbackId);
   void runJavaScript(const std::string& js);
@@ -70,6 +76,8 @@ protected:
   virtual CefRefPtr<Client::RenderHandler> createOSRWindow(CefWindowHandle parent, OSRBrowserProvider* browser_provider, bool transparent) = 0;
   virtual void handlePause();
   virtual void handleResume();
+
+  virtual void handleTimer();
 
   CefRefPtr<Client> _client;
   CefRefPtr<Config> _config;
