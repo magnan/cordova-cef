@@ -1,1 +1,1 @@
-(jazz:run-product 'sc)
+(jazz:run-product 'sentio.client)

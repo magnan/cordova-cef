@@ -1,12 +1,17 @@
 (script jazz
 
 (import jazz.debuggee)
-(import jazz.platform)
+
+(native start-scheme-repl)
 
 (let ((debugger "localhost:9000"))
   (current-process-title-set! "Sentio")
-  (setup-debuggee debugger: debugger)
-  (start-repl-thread (current-thread) #f (get-console-port))
-  (select-console)
-  ;(transmit-runtime-information~ (get-local-process) 'all)
-  ))
+  (setup-debuggee debugger: debugger focus?: #t)
+  (transmit-product-runtime-information~ (get-local-process) 'all 'sentio.client)
+  (set-default-context #f))
+
+(thread-start!
+  (make-thread
+    (lambda ()
+      (start-scheme-repl))
+    'loop)))
