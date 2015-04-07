@@ -40,6 +40,8 @@
     <preference name="Fullscreen" value="true" />
     -->
     <preference name="OffScreenRendering" value="false" />
+    <preference name="www" value="www" />
+    <preference name="www_devel" value="../../../www" />
     <preference name="StartFullScreen" value="true" />
     <preference name="ButtonSize" value="60" />
 

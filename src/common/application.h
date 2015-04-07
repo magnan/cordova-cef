@@ -36,6 +36,9 @@ extern bool startfullscreen;
 extern int buttonsize;
 
 
+extern const char* startupDir;
+
+
 extern void call_js(char*);
 extern void register_export(char*, int);
 
@@ -83,6 +86,7 @@ protected:
   CefRefPtr<Config> _config;
   CefRefPtr<PluginManager> _pluginManager;
 
+  std::string _startupDir;
   std::string _startupUrl;
 
   CefRefPtr<CefV8Value> _exposedJSObject;

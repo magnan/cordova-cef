@@ -10,6 +10,7 @@
 
 #include "Camera.h"
 
+#include <string>
 #include <shlobj.h>
 #include <Shlwapi.h>
 #include <powrprof.h>
@@ -40,6 +41,7 @@ bool cameraRecord = true;
 int cameraCode;
 wchar_t* cameraFilename;
 
+std::wstring cameraStartupDir;
 bool cameraFullScreen = false;
 int cameraButtonSize = 60;
 int cameraButtonHalf = 30;
@@ -301,7 +303,6 @@ namespace MainWindow
 
     void OnStartRecord(HWND hwnd)
     {
-		
         wchar_t filename[MAX_PATH];
 
 		HRESULT hr;
@@ -311,8 +312,8 @@ namespace MainWindow
         SYSTEMTIME time;
         GetLocalTime(&time);
 
-        hr = StringCchPrintf(filename, MAX_PATH, L"www\\media\\MyVideo%04u_%02u%02u_%02u%02u%02u.mp4",
-            time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
+		std::wstring filepath = cameraStartupDir + L"media\\MyVideo%04u_%02u%02u_%02u%02u%02u.mp4";
+        hr = StringCchPrintf(filename, MAX_PATH, filepath.c_str(), time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
             goto done;
@@ -359,9 +360,9 @@ done:
 
         SYSTEMTIME time;
         GetLocalTime(&time);
-
-        hr = StringCchPrintf(filename, MAX_PATH, L"www\\media\\MyPhoto%04u_%02u%02u_%02u%02u%02u.jpg",
-            time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
+		
+		std::wstring filepath = cameraStartupDir + L"media\\MyVideo%04u_%02u%02u_%02u%02u%02u.mp4";
+        hr = StringCchPrintf(filename, MAX_PATH, filepath.c_str(), time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
             goto done;
@@ -801,7 +802,7 @@ done:
     }
 }
 
-extern "C" __declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
+extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* startupDir, bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	bool firstTime = ! cameraInited;
 
@@ -814,6 +815,8 @@ extern "C" __declspec(dllexport) void __cdecl CameraCapture(bool startfullscreen
 	cameraCode = 0;
 	cameraFilename = L"";
 	
+	std::string tmp = std::string(startupDir);
+	cameraStartupDir = std::wstring(tmp.begin(), tmp.end());
 	cameraFullScreen = startfullscreen;
 	cameraButtonSize = buttonsize;
 	cameraButtonHalf = buttonsize / 2;

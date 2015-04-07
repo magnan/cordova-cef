@@ -28,6 +28,7 @@
 
 #include "Camera.h"
 
+const char* startupDir;
 bool startfullscreen = false;
 int buttonsize = 64;
 
@@ -179,22 +180,40 @@ void safe_gambit_heartbeat()
 
 void Application::OnContextInitialized()
 { 
-  std::string startup_document = _config->startDocument();
+	std::string startup_document = _config->startDocument();
 
-  // test if absolute url with http or https
-  if(boost::starts_with(startup_document, "http://") || boost::starts_with(startup_document, "https://"))
-  {
-    _startupUrl = startup_document;
-  }
-  else
-  {
-    std::string www_dir = _paths->getApplicationDir().generic_string();
-    www_dir += "/www";
-    if(!boost::starts_with(www_dir, "/"))
-      www_dir = "/" + www_dir;
-    _startupUrl = "file://" + www_dir + "/" + startup_document; 
-  }
+	// test if absolute url with http or https
+	if(boost::starts_with(startup_document, "http://") || boost::starts_with(startup_document, "https://"))
+	{
+		_startupUrl = startup_document;
+	}
+	else
+	{
+		std::string www, www_devel;
+	  
+		config()->getStringPreference("www", www);
+		config()->getStringPreference("www_devel", www_devel);
+		std::string www_dir = _paths->getApplicationDir().generic_string();
+		www_dir += "/";
+		www_dir += www;
+		if(!boost::starts_with(www_dir, "/"))
+			www_dir = "/" + www_dir;
+		_startupDir = "file://" + www_dir + "/";
+		_startupUrl = "file://" + www_dir + "/" + startup_document;
 
+		if (!boost::filesystem::exists( _startupUrl ))
+		{
+			std::string www_dir = _paths->getApplicationDir().generic_string();
+			www_dir += "/";
+			www_dir += www_devel;
+			if(!boost::starts_with(www_dir, "/"))
+				www_dir = "/" + www_dir;
+			_startupDir = "file://" + www_dir + "/";
+			_startupUrl = _startupDir + startup_document;
+		}
+
+		startupDir = _startupDir.c_str();
+	}
 
   CefWindowInfo info;
   bool transparent = true;
@@ -310,16 +329,16 @@ bool CameraAvailable()
 		return false;
 }
 
-typedef void (*CameraCaptureType)(bool, int, CameraDoneCallback);
+typedef void (*CameraCaptureType)(const char*, bool, int, CameraDoneCallback);
 
-void CameraCapture(bool startfullscreen, int buttonsize, CameraDoneCallback callback)
+void CameraCapture(const char* startupDir, bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	HMODULE lib;
 
 	lib = LoadLibrary(L"Camera.dll");
 	CameraCaptureType proc = (CameraCaptureType) GetProcAddress(lib, "CameraCapture");
 
-	(proc)(startfullscreen, buttonsize, callback);
+	(proc)(startupDir, startfullscreen, buttonsize, callback);
 }
 
 CefRefPtr<CefV8Value> callback_func;
@@ -420,7 +439,7 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
 	  {
 		  callback_func = arguments[0];
 		  callback_context = CefV8Context::GetCurrentContext();
-		  CameraCapture(startfullscreen, buttonsize, &CameraDone);
+		  CameraCapture(startupDir, startfullscreen, buttonsize, &CameraDone);
 	  }
 	  return true;
   }
