@@ -49,6 +49,9 @@ void ShowDebug(PCTSTR format, ...)
 
 Application* currentApp;
 
+CefRefPtr<CefV8Context> globalContext;
+CefRefPtr<CefV8Value> globalGlobal;
+
 //ExecuteJavaScript
 //NEED TO USE EXECUTEJAVASCRIPT AND NOT RELY ON ANY RETURN VALUE
 //WORST CASE SCENARIO WE CAN RETURN AND WAIT ON A VALUE BY A CALLBACK TO SCHEME
@@ -276,6 +279,8 @@ void Application::OnContextInitialized()
 
 void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
 {
+	globalContext = context;
+	globalGlobal = context->GetGlobal();
   CefRefPtr<CefV8Value> global = context->GetGlobal();
   _exposedJSObject = CefV8Value::CreateObject(NULL);
   CefRefPtr<CefV8Value> exec = CefV8Value::CreateFunction("exec", this);
@@ -371,8 +376,8 @@ map <string, int> exports;
 
 void Application::registerExport(char* name, int type)
 {
-	CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();;
-    CefRefPtr<CefV8Value> global = context->GetGlobal();
+	CefRefPtr<CefV8Context> context = globalContext; // CefV8Context::GetCurrentContext();
+    CefRefPtr<CefV8Value> global = globalGlobal; // context->GetGlobal();
 	global->SetValue(name, CefV8Value::CreateFunction(name, this), V8_PROPERTY_ATTRIBUTE_READONLY);
 	exports[name] = type;
 }
