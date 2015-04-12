@@ -104,6 +104,7 @@ Application_Win::Application_Win(std::shared_ptr<Helper::Paths> paths)
 
 Application_Win::~Application_Win()
 {
+  KillTimer(_mainWindow, 0);
 }
 
 CefRefPtr<Client::RenderHandler> Application_Win::createOSRWindow(CefWindowHandle parent, OSRBrowserProvider* browser_provider, bool transparent)

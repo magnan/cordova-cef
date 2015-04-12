@@ -281,40 +281,43 @@ void Application::OnContextCreated( CefRefPtr<CefBrowser> browser, CefRefPtr<Cef
 {
 	globalContext = context;
 	globalGlobal = context->GetGlobal();
-  CefRefPtr<CefV8Value> global = context->GetGlobal();
-  _exposedJSObject = CefV8Value::CreateObject(NULL);
-  CefRefPtr<CefV8Value> exec = CefV8Value::CreateFunction("exec", this);
-  _exposedJSObject->SetValue("exec", exec, V8_PROPERTY_ATTRIBUTE_READONLY);
-  global->SetValue("_cordovaNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+
+	CefRefPtr<CefV8Value> global = context->GetGlobal();
+	_exposedJSObject = CefV8Value::CreateObject(NULL);
+	CefRefPtr<CefV8Value> exec = CefV8Value::CreateFunction("exec", this);
+	_exposedJSObject->SetValue("exec", exec, V8_PROPERTY_ATTRIBUTE_READONLY);
+	global->SetValue("_cordovaNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   
-  _exposedJSObject = CefV8Value::CreateObject(NULL);
-  global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
-  CefRefPtr<CefV8Value> camera = CefV8Value::CreateFunction("camera", this);
-  _exposedJSObject->SetValue("camera", camera, V8_PROPERTY_ATTRIBUTE_READONLY);
-  CefRefPtr<CefV8Value> cameraAvailable = CefV8Value::CreateFunction("cameraAvailable", this);
-  _exposedJSObject->SetValue("cameraAvailable", cameraAvailable, V8_PROPERTY_ATTRIBUTE_READONLY);
+	_exposedJSObject = CefV8Value::CreateObject(NULL);
+	global->SetValue("_cameraNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+	CefRefPtr<CefV8Value> camera = CefV8Value::CreateFunction("camera", this);
+	_exposedJSObject->SetValue("camera", camera, V8_PROPERTY_ATTRIBUTE_READONLY);
+	CefRefPtr<CefV8Value> cameraAvailable = CefV8Value::CreateFunction("cameraAvailable", this);
+	_exposedJSObject->SetValue("cameraAvailable", cameraAvailable, V8_PROPERTY_ATTRIBUTE_READONLY);
   
 	global->SetValue("evalnative", CefV8Value::CreateFunction("eval", this), V8_PROPERTY_ATTRIBUTE_READONLY);
 	global->SetValue("evalcatchnative", CefV8Value::CreateFunction("evalcatch", this), V8_PROPERTY_ATTRIBUTE_READONLY);
   
-  _exposedJSObject = CefV8Value::CreateObject(NULL);
-  CefRefPtr<CefV8Value> quit = CefV8Value::CreateFunction("quit", this);
-  _exposedJSObject->SetValue("quit", quit, V8_PROPERTY_ATTRIBUTE_READONLY);
-  global->SetValue("_quitNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+	_exposedJSObject = CefV8Value::CreateObject(NULL);
+	CefRefPtr<CefV8Value> quit = CefV8Value::CreateFunction("quit", this);
+	_exposedJSObject->SetValue("quit", quit, V8_PROPERTY_ATTRIBUTE_READONLY);
+	global->SetValue("_quitNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
 
-  _exposedJSObject = CefV8Value::CreateObject(NULL);
-  CefRefPtr<CefV8Value> devtools = CefV8Value::CreateFunction("devtools", this);
-  _exposedJSObject->SetValue("devtools", devtools, V8_PROPERTY_ATTRIBUTE_READONLY);
-  global->SetValue("_devtoolsNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
+	_exposedJSObject = CefV8Value::CreateObject(NULL);
+	CefRefPtr<CefV8Value> devtools = CefV8Value::CreateFunction("devtools", this);
+	_exposedJSObject->SetValue("devtools", devtools, V8_PROPERTY_ATTRIBUTE_READONLY);
+	global->SetValue("_devtoolsNative", _exposedJSObject, V8_PROPERTY_ATTRIBUTE_READONLY);
   
 	global->SetValue("testnative", CefV8Value::CreateFunction("test", this), V8_PROPERTY_ATTRIBUTE_READONLY);
 }
 
 void Application::OnContextReleased( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context )
 {
+	// this does not go here as it is called for each closed window
+	// it should go in a OnContextDestroyed method corresponding to OnContextInitialized
 	// cleanup gambit
-	//cleanup_gambit();
-	DeleteCriticalSection(&gambit_critical_section);
+	// cleanup_gambit();
+	// DeleteCriticalSection(&gambit_critical_section);
 }
 
 bool CameraAvailable()
