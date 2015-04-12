@@ -354,6 +354,15 @@ void CameraDone(int code, wchar_t* filename)
 	callback_func->ExecuteFunctionWithContext(callback_context, NULL, args);
 }
 
+bool doLog = false;
+FILE *logFP = NULL;
+
+void logSetup()
+{
+	if (doLog && !logFP)
+		logFP=fopen("c:\\Home\\log.txt", "w");
+}
+
 #include <map>
 
 using namespace std;
