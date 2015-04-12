@@ -323,7 +323,7 @@ namespace MainWindow
             goto done;
         }
 
-        LPTSTR path = PathCombine(VideoFileName, appdir, filename);
+        LPTSTR path = PathCombine(VideoFileName, L"", filename);
         if (path == NULL)
         {
             hr = E_FAIL;
@@ -365,14 +365,14 @@ done:
         SYSTEMTIME time;
         GetLocalTime(&time);
 		
-		std::wstring filepath = cameraStartupDir + L"media\\MyVideo%04u_%02u%02u_%02u%02u%02u.mp4";
+		std::wstring filepath = cameraStartupDir + L"media/MyPhoto%04u_%02u%02u_%02u%02u%02u.jpg";
         hr = StringCchPrintf(filename, MAX_PATH, filepath.c_str(), time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
             goto done;
         }
 
-        LPTSTR path = PathCombine(PhotoFileName, appdir , filename);
+        LPTSTR path = PathCombine(PhotoFileName, L"" , filename);
         if (path == NULL)
         {
             hr = E_FAIL;
@@ -820,7 +820,8 @@ extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* appDir, 
 	std::string tmp1 = std::string(appDir);
 	cameraAppDir = std::wstring(tmp1.begin(), tmp1.end());
 	std::string tmp2 = std::string(startupDir);
-	cameraStartupDir = std::wstring(tmp2.begin(), tmp2.end());
+	// time for an ugly hack to remove the file:///
+	cameraStartupDir = std::wstring(tmp2.begin()+8, tmp2.end());
 	cameraFullScreen = startfullscreen;
 	cameraButtonSize = buttonsize;
 	cameraButtonHalf = buttonsize / 2;
