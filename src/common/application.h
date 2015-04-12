@@ -86,6 +86,7 @@ protected:
   CefRefPtr<Config> _config;
   CefRefPtr<PluginManager> _pluginManager;
 
+  std::string _appDir;
   std::string _startupDir;
   std::string _startupUrl;
 

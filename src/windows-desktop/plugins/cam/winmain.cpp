@@ -33,7 +33,7 @@ HPOWERNOTIFY    g_hPowerNotifyMonitor = NULL;
 SYSTEM_POWER_CAPABILITIES   g_pwrCaps;
 bool            g_fSleepState = false;
 
-wchar_t appdir[MAX_PATH];
+const wchar_t* appdir;
 
 bool cameraInited = false;
 bool cameraRecord = true;
@@ -41,6 +41,7 @@ bool cameraRecord = true;
 int cameraCode;
 wchar_t* cameraFilename;
 
+std::wstring cameraAppDir;
 std::wstring cameraStartupDir;
 bool cameraFullScreen = false;
 int cameraButtonSize = 60;
@@ -66,10 +67,13 @@ Zone videoZone;
 Zone stillZone;
 Zone recordZone;
 
-void SetupApp()
+bool doLogCamera = false;
+FILE *logCameraFP = NULL;
+
+void logCameraSetup()
 {
-	GetModuleFileNameW(NULL, appdir, MAX_PATH);
-	PathRemoveFileSpec(appdir);
+	if (doLogCamera && !logCameraFP)
+		logCameraFP=fopen("c:\\Home\\logcamera.txt", "w");
 }
 
 void InitDevices()
@@ -750,8 +754,6 @@ void CameraInit()
 {
 	bool bCoInit = false, bMFStartup = false;
 
-	SetupApp();
-
 	GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
 
@@ -802,7 +804,7 @@ done:
     }
 }
 
-extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* startupDir, bool startfullscreen, int buttonsize, CameraDoneCallback callback)
+extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* appDir, const char* startupDir, bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	bool firstTime = ! cameraInited;
 
@@ -815,11 +817,15 @@ extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* startupD
 	cameraCode = 0;
 	cameraFilename = L"";
 	
-	std::string tmp = std::string(startupDir);
-	cameraStartupDir = std::wstring(tmp.begin(), tmp.end());
+	std::string tmp1 = std::string(appDir);
+	cameraAppDir = std::wstring(tmp1.begin(), tmp1.end());
+	std::string tmp2 = std::string(startupDir);
+	cameraStartupDir = std::wstring(tmp2.begin(), tmp2.end());
 	cameraFullScreen = startfullscreen;
 	cameraButtonSize = buttonsize;
 	cameraButtonHalf = buttonsize / 2;
+
+	appdir = cameraAppDir.c_str();
 
 	SetupZones(firstTime);
 

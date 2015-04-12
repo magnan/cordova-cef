@@ -28,6 +28,7 @@
 
 #include "Camera.h"
 
+const char* appDir;
 const char* startupDir;
 bool startfullscreen = false;
 int buttonsize = 64;
@@ -215,6 +216,8 @@ void Application::OnContextInitialized()
 			_startupUrl = _startupDir + startup_document;
 		}
 
+		_appDir = _paths->getApplicationDir().generic_string();
+		appDir = _appDir.c_str();
 		startupDir = _startupDir.c_str();
 	}
 
@@ -337,16 +340,16 @@ bool CameraAvailable()
 		return false;
 }
 
-typedef void (*CameraCaptureType)(const char*, bool, int, CameraDoneCallback);
+typedef void (*CameraCaptureType)(const char*, const char*, bool, int, CameraDoneCallback);
 
-void CameraCapture(const char* startupDir, bool startfullscreen, int buttonsize, CameraDoneCallback callback)
+void CameraCapture(const char* appDir, const char* startupDir, bool startfullscreen, int buttonsize, CameraDoneCallback callback)
 {
 	HMODULE lib;
 
 	lib = LoadLibrary(L"Camera.dll");
 	CameraCaptureType proc = (CameraCaptureType) GetProcAddress(lib, "CameraCapture");
 
-	(proc)(startupDir, startfullscreen, buttonsize, callback);
+	(proc)(appDir, startupDir, startfullscreen, buttonsize, callback);
 }
 
 CefRefPtr<CefV8Value> callback_func;
@@ -368,7 +371,7 @@ FILE *logFP = NULL;
 void logSetup()
 {
 	if (doLog && !logFP)
-		logFP=fopen("c:\\Home\\log.txt", "w");
+		logFP=fopen("c:\\Home\\logsentio.txt", "w");
 }
 
 #include <map>
@@ -456,7 +459,7 @@ bool Application::Execute( const CefString& name, CefRefPtr<CefV8Value> object, 
 	  {
 		  callback_func = arguments[0];
 		  callback_context = CefV8Context::GetCurrentContext();
-		  CameraCapture(startupDir, startfullscreen, buttonsize, &CameraDone);
+		  CameraCapture(appDir, startupDir, startfullscreen, buttonsize, &CameraDone);
 	  }
 	  return true;
   }
