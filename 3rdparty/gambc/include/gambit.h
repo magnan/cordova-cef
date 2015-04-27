@@ -8,11 +8,11 @@
 #define ___GAMBIT_H
 
 #ifndef ___VERSION
-#define ___VERSION 407004
+#define ___VERSION 407005
 #endif
 
-#if ___VERSION != 407004
-#include "gambit-not407004.h"
+#if ___VERSION != 407005
+#include "gambit-not407005.h"
 #else
 
 #ifdef HAVE_CONFIG_H
@@ -3263,6 +3263,43 @@ ___hp[-2]=real,___hp[-1]=imag,___TAG((___hp-___CPXNUM_SIZE-1),___tSUBTYPED))
 ___hp[-3]=___MAKE_HD_WORDS(___PROMISE_SIZE,___sPROMISE), \
 ___hp[-2]=x, ___hp[-1]=___TAG((___hp-___PROMISE_SIZE-1),___tSUBTYPED))
 
+#define ___PROMISETHUNK(obj)___FIELD(obj,___PROMISE_THUNK)
+#define ___PROMISETHUNKSET(obj,val)___FIELD(obj,___PROMISE_THUNK) = val;
+#define ___PROMISERESULT(obj)___FIELD(obj,___PROMISE_RESULT)
+#define ___PROMISERESULTSET(obj,val)___FIELD(obj,___PROMISE_RESULT) = val;
+
+#define ___MAKECONTINUATION(frame,denv) \
+(___ALLOC(___CONTINUATION_SIZE+1), \
+___hp[-3]=___MAKE_HD_WORDS(___CONTINUATION_SIZE,___sCONTINUATION), \
+___hp[-2]=frame,___hp[-1]=denv,___TAG((___hp-___CONTINUATION_SIZE-1),___tSUBTYPED))
+
+#define ___CONTINUATIONFRAME(obj)___FIELD(obj,___CONTINUATION_FRAME)
+#define ___CONTINUATIONFRAMESET(obj,val)___FIELD(obj,___CONTINUATION_FRAME) = val;
+#define ___CONTINUATIONDENV(obj)___FIELD(obj,___CONTINUATION_DENV)
+#define ___CONTINUATIONDENVSET(obj,val)___FIELD(obj,___CONTINUATION_DENV) = val;
+
+#define ___MAKESYMBOL(name,hash) \
+(___ALLOC(___SYMBOL_SIZE+1), \
+___hp[-5]=___MAKE_HD_WORDS(___SYMBOL_SIZE,___sSYMBOL), \
+___hp[-4]=name,___hp[-3]=hash,___hp[-2]=___FAL,___hp[-1]=0,___TAG((___hp-___SYMBOL_SIZE-1),___tSUBTYPED))
+
+#define ___SYMBOLNAME(obj)___FIELD(obj,___SYMKEY_NAME)
+#define ___SYMBOLNAMESET(obj,val)___FIELD(obj,___SYMKEY_NAME) = val;
+#define ___SYMBOLHASH(obj)___FIELD(obj,___SYMKEY_HASH)
+#define ___SYMBOLHASHSET(obj,val)___FIELD(obj,___SYMKEY_HASH) = val;
+#define ___SYMBOLINTERNEDP(obj)___FIELD(obj,___SYMKEY_NEXT)
+
+#define ___MAKEKEYWORD(name,hash) \
+(___ALLOC(___KEYWORD_SIZE+1), \
+___hp[-4]=___MAKE_HD_WORDS(___KEYWORD_SIZE,___sKEYWORD), \
+___hp[-3]=name,___hp[-2]=hash,___hp[-1]=___FAL,___TAG((___hp-___KEYWORD_SIZE-1),___tSUBTYPED))
+
+#define ___KEYWORDNAME(obj)___FIELD(obj,___SYMKEY_NAME)
+#define ___KEYWORDNAMESET(obj,val)___FIELD(obj,___SYMKEY_NAME) = val;
+#define ___KEYWORDHASH(obj)___FIELD(obj,___SYMKEY_HASH)
+#define ___KEYWORDHASHSET(obj,val)___FIELD(obj,___SYMKEY_HASH) = val;
+#define ___KEYWORDINTERNEDP(obj)___FIELD(obj,___SYMKEY_NEXT)
+
 #define ___MAKEWILL(testator,action) \
 (___hp[0]=___MAKE_HD_WORDS(___WILL_SIZE,___sWEAK), \
 ___hp[1]=___ps->nonexecutable_wills, \
@@ -3271,7 +3308,11 @@ ___hp[3]=action, \
 ___ps->nonexecutable_wills=___TAG(___hp,0), \
 ___ALLOC(___WILL_SIZE+1), \
 ___TAG((___hp-___WILL_SIZE-1),___tSUBTYPED))
-#define ___WILLTESTATOR(x)___BODY_AS(x,___tSUBTYPED)[1]
+
+#define ___WILLTESTATOR(obj)___FIELD(obj,___WILL_TESTATOR)
+#define ___WILLTESTATORSET(obj,val)___FIELD(obj,___WILL_TESTATOR) = val;
+#define ___WILLACTION(obj)___FIELD(obj,___WILL_ACTION)
+#define ___WILLACTIONSET(obj,val)___FIELD(obj,___WILL_ACTION) = val;
 
 #define ___EXECUTABLE_WILL        1
 #define ___UNMARKED_TESTATOR_WILL 2
@@ -3425,6 +3466,8 @@ ___FIELD(___FIELD(thread,___THREAD_CONT),___CONTINUATION_FRAME) = frame;
 #define ___PROMISE_RESULT 1
 #define ___CONTINUATION_FRAME 0
 #define ___CONTINUATION_DENV  1
+#define ___WILL_TESTATOR 1
+#define ___WILL_ACTION   2
 #define ___THREAD_CONT        19
 #define ___THREAD_DENV        20
 #define ___THREAD_DENV_CACHE1 21
@@ -9029,6 +9072,10 @@ typedef struct ___global_state_struct
              ___SCMOBJ proc,
              ___SCMOBJ marker),
             ());
+    void (*___throw_error)
+       ___P((___PSD
+             ___SCMOBJ err),
+            ());
     void (*___propagate_error)
        ___P((___PSD
              ___SCMOBJ err),
@@ -10284,6 +10331,10 @@ ___IMP_FUNC(___SCMOBJ,___call)
          int nargs,
          ___SCMOBJ proc,
          ___SCMOBJ marker),
+        ());
+___IMP_FUNC(void,___throw_error)
+   ___P((___PSD
+         ___SCMOBJ err),
         ());
 ___IMP_FUNC(void,___propagate_error)
    ___P((___PSD
