@@ -213,7 +213,7 @@ void Application::OnContextInitialized()
 		_startupDir = "file://" + www_dir + "/";
 		_startupUrl = "file://" + www_dir + "/" + startup_document;
 
-		if (!boost::filesystem::exists( _startupUrl ))
+		if (!boost::filesystem::exists( www_dir ))
 		{
 			std::string www_dir = _paths->getApplicationDir().generic_string();
 			www_dir += "/";
