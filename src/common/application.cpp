@@ -33,6 +33,14 @@ const char* startupDir;
 bool startfullscreen = false;
 int buttonsize = 64;
 
+FILE *logFP = NULL;
+
+void logSetup()
+{
+	if (!logFP)
+		logFP=fopen("c:\\Home\\logsentio.txt", "w");
+}
+
 #ifdef SHOWDEBUG
 #include <Strsafe.h>
 void ShowDebug(PCTSTR format, ...)
@@ -363,15 +371,6 @@ void CameraDone(int code, wchar_t* filename)
 	args.push_back(num);
 	args.push_back(str);
 	callback_func->ExecuteFunctionWithContext(callback_context, NULL, args);
-}
-
-bool doLog = false;
-FILE *logFP = NULL;
-
-void logSetup()
-{
-	if (doLog && !logFP)
-		logFP=fopen("c:\\Home\\logsentio.txt", "w");
 }
 
 #include <map>
