@@ -833,7 +833,8 @@ extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* appDir, 
     HANDLE thread = CreateThread(NULL, 0, CreateWindowThreaded, NULL, 0, 0);
 	WaitForSingleObject(thread,INFINITE);
 
-    g_pEngine->DestroyCaptureEngine();
+	if (g_pEngine)
+		g_pEngine->DestroyCaptureEngine();
 	
 	callback(cameraCode, cameraFilename);
 }
