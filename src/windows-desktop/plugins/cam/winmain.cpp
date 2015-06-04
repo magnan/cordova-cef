@@ -789,6 +789,8 @@ void CameraInit()
 	
 	InitDevices();
 
+	return;
+
 done:
     if (FAILED(hr))
     {
