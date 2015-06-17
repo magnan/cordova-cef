@@ -365,7 +365,7 @@ done:
         SYSTEMTIME time;
         GetLocalTime(&time);
 		
-		std::wstring filepath = cameraStartupDir + L"media/MyPhoto%04u_%02u%02u_%02u%02u%02u.jpg";
+		std::wstring filepath = cameraStartupDir + L"media/MyPhoto%04u_%02u%02u_%02u%02u%02u.png";
         hr = StringCchPrintf(filename, MAX_PATH, filepath.c_str(), time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond);
         if (FAILED(hr))
         {
