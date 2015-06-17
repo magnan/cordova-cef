@@ -840,3 +840,22 @@ extern "C" __declspec(dllexport) void __cdecl CameraCapture(const char* appDir, 
 	
 	callback(cameraCode, cameraFilename);
 }
+
+// convenience for functions missing in mingw
+
+#include <shlobj.h>
+
+LPWSTR GetKnownFolder(REFKNOWNFOLDERID rfid)
+{
+	LPWSTR wszPath = NULL;
+	HRESULT hr = SHGetKnownFolderPath(rfid, KF_FLAG_CREATE, NULL, &wszPath);
+	if ( SUCCEEDED(hr) )
+		return wszPath;
+	else
+		return NULL;
+}
+
+extern "C" __declspec(dllexport) LPWSTR GetAppDataFolder()
+{
+	return GetKnownFolder(FOLDERID_RoamingAppData);
+}
