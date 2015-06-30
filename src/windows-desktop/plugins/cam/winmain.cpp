@@ -49,7 +49,7 @@ int cameraButtonHalf = 30;
 
 Devices devices;
 IMFActivate* selectedDevice = NULL;
-int selectedDeviceRank = 0;
+int selectedDeviceRank = -1;
 
 struct Zone
 {
@@ -226,6 +226,8 @@ namespace MainWindow
             goto done;
         }
     
+		// Select last heuristic to get back facing camera
+		selectedDeviceRank = devices.count - 1;
         hr = SelectDevice(hPreview, selectedDeviceRank);
         if (FAILED(hr))
         {
