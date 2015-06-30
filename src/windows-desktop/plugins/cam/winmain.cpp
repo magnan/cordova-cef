@@ -531,7 +531,7 @@ done:
 				RedrawWindow(hwnd, NULL, NULL, 0);
 				cameraCode = 2;
 				cameraFilename = PhotoFileName;
-				Sleep(500);
+				Sleep(2500);
 				PostQuitMessage(0);
 			}
 		}
