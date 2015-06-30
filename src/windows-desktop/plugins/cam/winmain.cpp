@@ -67,13 +67,43 @@ Zone videoZone;
 Zone stillZone;
 Zone recordZone;
 
-bool doLogCamera = false;
-FILE *logCameraFP = NULL;
+bool loggingCamera = false;
+FILE *logCameraFile = NULL;
 
 void logCameraSetup()
 {
-	if (doLogCamera && !logCameraFP)
-		logCameraFP=fopen("c:\\Home\\logcamera.txt", "w");
+	if (loggingCamera && !logCameraFile)
+		logCameraFile=fopen("c:\\Home\\logcamera.txt", "w");
+}
+
+void printCamera(wchar_t* string)
+{
+	if (loggingCamera)
+	{
+		logCameraSetup();
+		fwprintf(logCameraFile, L"%ls", string);
+		fflush(logCameraFile);
+	}
+}
+
+void vprintCamera(wchar_t* format, va_list arguments)
+{
+	if (loggingCamera)
+	{
+		logCameraSetup();
+		vfwprintf(logCameraFile, format, arguments);
+		fflush(logCameraFile);
+	}
+}
+
+void logCamera(wchar_t* format, ...)
+{
+	va_list arguments;
+
+	va_start(arguments, format);
+	vprintCamera(format, arguments);
+	printCamera(L"\n");
+	va_end(arguments);
 }
 
 void InitDevices()
@@ -558,16 +588,18 @@ done:
 					GUID guidType;
 					IMFMediaEvent *pEvent = reinterpret_cast<IMFMediaEvent*>(wParam);
 					pEvent->GetExtendedType(&guidType);
-					/*
+
 					// For debugging events
-					if (guidType == MF_CAPTURE_ENGINE_INITIALIZED) ShowDebug(L"INITIALIZED");
-					else if (guidType == MF_CAPTURE_ENGINE_PREVIEW_STARTED) ShowDebug(L"PREVIEW_STARTED");
-					else if (guidType == MF_CAPTURE_ENGINE_PREVIEW_STOPPED) ShowDebug(L"PREVIEW_STOPPED");
-					else if (guidType == MF_CAPTURE_ENGINE_RECORD_STARTED) ShowDebug(L"RECORD_STARTED");
-					else if (guidType == MF_CAPTURE_ENGINE_RECORD_STOPPED) ShowDebug(L"RECORD_STOPPED");
-					else if (guidType == MF_CAPTURE_ENGINE_PHOTO_TAKEN) ShowDebug(L"PHOTO_TAKEN");
-					else if (guidType == MF_CAPTURE_ENGINE_ERROR) ShowDebug(L"ERROR");
+					/*
+					if (guidType == MF_CAPTURE_ENGINE_INITIALIZED) logCamera(L"INITIALIZED");
+					else if (guidType == MF_CAPTURE_ENGINE_PREVIEW_STARTED) logCamera(L"PREVIEW_STARTED");
+					else if (guidType == MF_CAPTURE_ENGINE_PREVIEW_STOPPED) logCamera(L"PREVIEW_STOPPED");
+					else if (guidType == MF_CAPTURE_ENGINE_RECORD_STARTED) logCamera(L"RECORD_STARTED");
+					else if (guidType == MF_CAPTURE_ENGINE_RECORD_STOPPED) logCamera(L"RECORD_STOPPED");
+					else if (guidType == MF_CAPTURE_ENGINE_PHOTO_TAKEN) logCamera(L"PHOTO_TAKEN");
+					else if (guidType == MF_CAPTURE_ENGINE_ERROR) logCamera(L"ERROR");
 					*/
+
                     HRESULT hr = g_pEngine->OnCaptureEvent(wParam, lParam);
                     if (FAILED(hr))
                     {

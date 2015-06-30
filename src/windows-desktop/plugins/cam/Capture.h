@@ -34,6 +34,7 @@
 
 const UINT WM_APP_CAPTURE_EVENT = WM_APP + 1;
 
+void	logCamera(wchar_t* format, ...);
 HWND    CreatePreviewWindow(HINSTANCE hInstance, HWND hParent);
 HWND    CreateMainWindow(HINSTANCE hInstance);
 void    ShowError(HWND hwnd, PCWSTR szMessage, HRESULT hr);
