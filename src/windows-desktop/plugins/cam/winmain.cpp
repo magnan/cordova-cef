@@ -748,14 +748,14 @@ void SetupZones(bool firstTime)
 	videoZone.default = L"images\\ath-tool-video.png";
 	videoZone.selected = L"images\\ath-tool-video_selected.png";
 	if (firstTime)
-		videoZone.isSelected = true;
+		videoZone.isSelected = false;
 
 	stillZone.center = Adjust(20);
 	stillZone.top = 0;
 	stillZone.default = L"images\\ath-tool-still.png";
 	stillZone.selected = L"images\\ath-tool-still_selected.png";
 	if (firstTime)
-		stillZone.isSelected = false;
+		stillZone.isSelected = true;
 	
 	recordZone.center = Adjust(120);
 	recordZone.top = 0;
